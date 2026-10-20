@@ -3355,3 +3355,518 @@ body.live-round-immersive-mode .arena-stage-body {
   flex-shrink: 0;
 }
 
+/* ==============================================================================
+   STATE-LEVEL ACADEMIC CONTROL ROOM REDESIGN (SECTIONS 1–30)
+   ============================================================================== */
+
+/* Control Room Header (Section 4) */
+.control-room-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 1.25rem;
+  padding: 0.85rem 1.25rem;
+  background: rgba(15, 23, 42, 0.7);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 14px;
+  flex-wrap: wrap;
+  gap: 1rem;
+}
+
+.cr-title-block {
+  display: flex;
+  flex-direction: column;
+  gap: 0.2rem;
+}
+
+.cr-phase-badge {
+  font-size: 0.7rem;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: #38bdf8;
+}
+
+.cr-title {
+  font-size: 1.35rem;
+  font-weight: 900;
+  color: #f8fafc;
+  letter-spacing: -0.02em;
+  margin: 0;
+}
+
+.cr-subtitle {
+  font-size: 0.8rem;
+  color: #94a3b8;
+  margin: 0;
+}
+
+.cr-live-status-pill {
+  display: flex;
+  align-items: center;
+  gap: 0.45rem;
+  margin-top: 0.35rem;
+}
+
+.cr-pulse-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: #10b981;
+  box-shadow: 0 0 10px rgba(16, 185, 129, 0.8);
+  animation: livePulse 2s infinite ease-in-out;
+}
+
+#cr-operator-status {
+  font-size: 0.72rem;
+  font-weight: 700;
+  color: #10b981;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.cr-right-actions {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  flex-wrap: wrap;
+}
+
+/* Horizontal Competition Timeline (Sections 7 & 8) */
+.competition-round-timeline {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin-bottom: 1.25rem;
+  background: rgba(11, 19, 38, 0.65);
+  border: 1px solid rgba(255, 255, 255, 0.07);
+  border-radius: 14px;
+  padding: 0.75rem 1rem;
+  overflow-x: auto;
+}
+
+.timeline-step {
+  flex: 1;
+  min-width: 170px;
+  padding: 0.65rem 0.85rem;
+  background: rgba(15, 23, 42, 0.6);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 10px;
+  transition: all 0.25s ease;
+}
+
+.timeline-step-indicator {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 0.25rem;
+}
+
+.timeline-step-indicator .step-num {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.75rem;
+  font-weight: 800;
+  color: #64748b;
+}
+
+.timeline-step-indicator .step-status-tag {
+  font-size: 0.65rem;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: #64748b;
+}
+
+.timeline-step-name {
+  font-size: 0.92rem;
+  font-weight: 800;
+  color: #cbd5e1;
+  margin-bottom: 0.15rem;
+}
+
+.timeline-step-sub {
+  font-size: 0.7rem;
+  color: #64748b;
+}
+
+.timeline-connector {
+  width: 16px;
+  height: 2px;
+  background: rgba(255, 255, 255, 0.12);
+  flex-shrink: 0;
+}
+
+/* Timeline State Variants (Section 7: BLUE=ACTIVE, GREEN=COMPLETED, GRAY=UPCOMING) */
+.timeline-step.timeline-step-current {
+  background: rgba(14, 165, 233, 0.1);
+  border-color: rgba(56, 189, 248, 0.5);
+  box-shadow: 0 0 20px rgba(56, 189, 248, 0.15);
+}
+.timeline-step.timeline-step-current .step-num { color: #38bdf8; }
+.timeline-step.timeline-step-current .step-status-tag { color: #38bdf8; }
+.timeline-step.timeline-step-current .timeline-step-name { color: #fff; }
+.timeline-step.timeline-step-current .timeline-step-sub { color: #94a3b8; }
+
+.timeline-step.timeline-step-completed {
+  background: rgba(16, 185, 129, 0.06);
+  border-color: rgba(16, 185, 129, 0.35);
+}
+.timeline-step.timeline-step-completed .step-num { color: #10b981; }
+.timeline-step.timeline-step-completed .step-status-tag { color: #10b981; }
+.timeline-step.timeline-step-completed .timeline-step-name { color: #e2e8f0; }
+
+.timeline-step.timeline-step-upcoming {
+  opacity: 0.65;
+}
+
+/* LIVE STAGE HERO PANEL (Sections 5, 6, 11) */
+.live-stage-hero-panel {
+  background: linear-gradient(145deg, rgba(15, 23, 42, 0.95), rgba(8, 14, 28, 0.98));
+  border: 1.5px solid rgba(56, 189, 248, 0.35);
+  border-radius: 18px;
+  padding: 1.25rem 1.4rem;
+  margin-bottom: 1.35rem;
+  box-shadow: 0 12px 35px rgba(2, 6, 23, 0.6), 0 0 25px rgba(56, 189, 248, 0.1);
+}
+
+.hero-stage-topbar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+  padding-bottom: 0.85rem;
+  margin-bottom: 1.15rem;
+  flex-wrap: wrap;
+  gap: 0.85rem;
+}
+
+.hero-live-indicator-cluster {
+  display: flex;
+  align-items: center;
+  gap: 0.8rem;
+  flex-wrap: wrap;
+}
+
+.pulse-live-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.45rem;
+  background: rgba(239, 68, 68, 0.15);
+  border: 1px solid rgba(239, 68, 68, 0.5);
+  color: #f87171;
+  padding: 0.35rem 0.65rem;
+  border-radius: 8px;
+  font-size: 0.72rem;
+  font-weight: 900;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.live-pulse-dot {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: #ef4444;
+  box-shadow: 0 0 8px rgba(239, 68, 68, 0.9);
+  animation: livePulse 1.6s infinite ease-in-out;
+}
+
+@keyframes livePulse {
+  0% { transform: scale(0.95); opacity: 0.7; }
+  50% { transform: scale(1.2); opacity: 1; }
+  100% { transform: scale(0.95); opacity: 0.7; }
+}
+
+.hero-group-indicator {
+  display: flex;
+  gap: 0.45rem;
+}
+
+.hero-group-pill {
+  background: rgba(56, 189, 248, 0.12);
+  border: 1px solid rgba(56, 189, 248, 0.4);
+  color: #38bdf8;
+  font-size: 0.78rem;
+  font-weight: 800;
+  padding: 0.35rem 0.7rem;
+  border-radius: 8px;
+  letter-spacing: 0.05em;
+}
+
+.hero-round-pill {
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  color: #94a3b8;
+  font-size: 0.78rem;
+  font-weight: 800;
+  padding: 0.35rem 0.7rem;
+  border-radius: 8px;
+  letter-spacing: 0.05em;
+}
+
+.hero-meta-stage-info {
+  display: flex;
+  flex-direction: column;
+  gap: 0.15rem;
+}
+
+.stage-academic-label {
+  font-size: 0.68rem;
+  font-weight: 800;
+  color: #64748b;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+}
+
+.stage-telemetry-stats {
+  font-size: 0.82rem;
+  color: #cbd5e1;
+  font-weight: 600;
+}
+
+.btn-next-group-primary {
+  background: rgba(56, 189, 248, 0.15);
+  border-color: rgba(56, 189, 248, 0.6);
+  color: #38bdf8;
+  font-weight: 800;
+}
+.btn-next-group-primary:hover {
+  background: rgba(56, 189, 248, 0.28);
+  border-color: #38bdf8;
+  box-shadow: 0 0 16px rgba(56, 189, 248, 0.3);
+}
+
+/* 3 Professional Academic Team Scorecards Grid (Section 11) */
+.live-stage-scoreboard-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 1.15rem;
+}
+
+@media (max-width: 1024px) {
+  .live-stage-scoreboard-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+.academic-score-card {
+  background: rgba(11, 19, 38, 0.7);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 14px;
+  padding: 1rem 1.15rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  transition: all 0.2s ease;
+  position: relative;
+}
+
+.academic-score-card:hover {
+  border-color: rgba(56, 189, 248, 0.4);
+  transform: translateY(-2px);
+}
+
+.academic-score-card.answering-focus {
+  border-color: rgba(56, 189, 248, 0.7);
+  background: linear-gradient(180deg, rgba(14, 165, 233, 0.08) 0%, rgba(11, 19, 38, 0.85) 100%);
+  box-shadow: 0 0 20px rgba(56, 189, 248, 0.15);
+}
+
+.asc-top-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.asc-slot-badge {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.72rem;
+  font-weight: 800;
+  color: #38bdf8;
+  letter-spacing: 0.06em;
+}
+
+.asc-rank-pill {
+  font-size: 0.68rem;
+  font-weight: 900;
+  color: #fbbf24;
+  background: rgba(251, 191, 36, 0.1);
+  border: 1px solid rgba(251, 191, 36, 0.3);
+  padding: 0.15rem 0.45rem;
+  border-radius: 6px;
+  letter-spacing: 0.04em;
+}
+
+.asc-team-body {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 0.6rem;
+}
+
+.asc-team-name {
+  font-size: 1.05rem;
+  font-weight: 800;
+  color: #fff;
+  margin: 0;
+  line-height: 1.3;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+}
+
+.asc-status-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  font-size: 0.65rem;
+  font-weight: 800;
+  letter-spacing: 0.05em;
+  padding: 0.2rem 0.45rem;
+  border-radius: 6px;
+  flex-shrink: 0;
+}
+
+.status-answering {
+  background: rgba(16, 185, 129, 0.15);
+  color: #34d399;
+  border: 1px solid rgba(16, 185, 129, 0.35);
+}
+.status-answering .status-dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: #10b981;
+  animation: livePulse 1.5s infinite;
+}
+
+.status-waiting {
+  background: rgba(255, 255, 255, 0.04);
+  color: #64748b;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+}
+.status-waiting .status-dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: #64748b;
+}
+
+/* Visually Dominant Score Display */
+.asc-score-display {
+  display: flex;
+  align-items: baseline;
+  gap: 0.4rem;
+  margin: 0.25rem 0;
+}
+
+.asc-score-value {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 2.2rem;
+  font-weight: 900;
+  color: #f8fafc;
+  line-height: 1;
+}
+
+.asc-score-label {
+  font-size: 0.72rem;
+  font-weight: 800;
+  color: #64748b;
+  letter-spacing: 0.08em;
+}
+
+/* Controls Strip (+10, +5, Safe -5) */
+.asc-controls-strip {
+  display: flex;
+  gap: 0.45rem;
+  margin-top: auto;
+}
+
+.asc-btn-pts {
+  flex: 1;
+  padding: 0.45rem 0.5rem;
+  border-radius: 8px;
+  font-weight: 800;
+  font-size: 0.85rem;
+  border: 1px solid transparent;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.asc-btn-add {
+  background: rgba(16, 185, 129, 0.12);
+  border-color: rgba(16, 185, 129, 0.35);
+  color: #34d399;
+}
+.asc-btn-add:hover {
+  background: rgba(16, 185, 129, 0.25);
+  border-color: #10b981;
+  transform: translateY(-1px);
+}
+
+.asc-btn-sub {
+  background: rgba(239, 68, 68, 0.12);
+  border-color: rgba(239, 68, 68, 0.35);
+  color: #f87171;
+}
+.asc-btn-sub:hover {
+  background: rgba(239, 68, 68, 0.25);
+  border-color: #ef4444;
+  transform: translateY(-1px);
+}
+
+/* Safe Deduction Modal Confirmation Box */
+.safety-score-delta-box {
+  display: flex;
+  align-items: center;
+  justify-content: space-around;
+  background: rgba(2, 6, 23, 0.6);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 12px;
+  padding: 1rem;
+  margin: 0.5rem 0 1rem;
+}
+
+/* Hotkeys Modal Styling */
+.hotkeys-grid-table {
+  display: flex;
+  flex-direction: column;
+  gap: 0.65rem;
+}
+
+.hotkey-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0.5rem 0.75rem;
+  background: rgba(255, 255, 255, 0.02);
+  border: 1px solid rgba(255, 255, 255, 0.06);
+  border-radius: 8px;
+}
+
+.key-badge {
+  background: #0f172a;
+  border: 1px solid #334155;
+  border-bottom: 2px solid #475569;
+  border-radius: 6px;
+  padding: 0.2rem 0.55rem;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.8rem;
+  font-weight: 800;
+  color: #38bdf8;
+}
+
+.hotkey-desc {
+  font-size: 0.82rem;
+  color: #cbd5e1;
+}
+
+/* Primary Launch Button Enhancement */
+.rc-launch-btn-primary {
+  box-shadow: 0 0 20px rgba(56, 189, 248, 0.4);
+  font-weight: 900 !important;
+}
+
+
