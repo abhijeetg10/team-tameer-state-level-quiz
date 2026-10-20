@@ -1091,6 +1091,31 @@ function enterLiveRound(phaseId, roundId) {
   switchMainScreen('screen-round-arena');
 }
 
+// Advance the active group on stage smoothly to the next round (e.g. Round 1 -> Round 2 -> Round 3 -> Round 4)
+function advanceToNextRoundOnStage() {
+  const phase = tournamentConfig.phases[currentPhaseIdx];
+  if (!phase) return;
+
+  if (currentRoundIdx < phase.rounds.length - 1) {
+    const nextRound = phase.rounds[currentRoundIdx + 1];
+    enterLiveRound(phase.id, nextRound.id);
+  } else {
+    // If already at last round, advance group
+    advanceNextGroupAndStartRounds();
+  }
+}
+
+// Conclude current group's 4 rounds, bring next group on stage, and start Round 1
+function advanceNextGroupAndStartRounds() {
+  advanceToNextGroup();
+  const phase = tournamentConfig.phases[currentPhaseIdx];
+  if (!phase) return;
+
+  // Start at Round 1 (id: 1) for the newly brought group
+  const firstRound = phase.rounds[0];
+  enterLiveRound(phase.id, firstRound.id);
+}
+
 function updateTopTracker() {
   const phase = tournamentConfig.phases[currentPhaseIdx];
   const round = phase.rounds[currentRoundIdx] || phase.rounds[0];
@@ -1162,12 +1187,55 @@ function renderLiveQuestion() {
       mediaContainer.style.display = "none";
       mediaContainer.innerHTML = "";
     }
+
+    const totalRoundsInPhase = phase.rounds.length;
+    const isLastRoundOfPhase = (currentRoundIdx >= totalRoundsInPhase - 1);
+    const nextRoundObj = !isLastRoundOfPhase ? phase.rounds[currentRoundIdx + 1] : null;
+
+    let actionButtonsHtml = "";
+    if (!isLastRoundOfPhase && nextRoundObj) {
+      actionButtonsHtml = `
+        <div style="display: flex; gap: 1rem; justify-content: center; flex-wrap: wrap;">
+          <button class="action-btn-clean btn-reveal-gold" style="padding: 0.8rem 1.8rem; font-size: 1rem; font-weight: 900;" onclick="advanceToNextRoundOnStage()">
+            Advance to ${nextRoundObj.name} →
+          </button>
+          <button class="action-btn-clean" style="padding: 0.8rem 1.4rem;" onclick="openRoundsHubForActivePhase()">
+            ← Select Different Round
+          </button>
+          <button class="action-btn-clean" style="padding: 0.8rem 1.4rem;" onclick="switchMainScreen('screen-leaderboard')">
+            View Leaderboard Standings
+          </button>
+        </div>
+      `;
+    } else {
+      // Last round of the phase concluded! Bring Next Group On Stage!
+      actionButtonsHtml = `
+        <div style="display: flex; gap: 1rem; justify-content: center; flex-wrap: wrap;">
+          <button class="action-btn-clean btn-reveal-gold" style="background: linear-gradient(135deg, #00f0ff, #0088ff); color: #020617; padding: 0.85rem 2rem; font-size: 1.05rem; font-weight: 900; box-shadow: 0 0 25px rgba(0,240,255,0.6);" onclick="advanceNextGroupAndStartRounds()">
+            🎭 Bring Next Group On Stage & Start Round 1 →
+          </button>
+          <button class="action-btn-clean" style="padding: 0.85rem 1.4rem;" onclick="switchMainScreen('screen-groups-hub')">
+            👥 Choose Group Manually
+          </button>
+          <button class="action-btn-clean" style="padding: 0.85rem 1.4rem;" onclick="switchMainScreen('screen-leaderboard')">
+            Leaderboard Standings →
+          </button>
+        </div>
+      `;
+    }
+
     if (optionsGrid) {
       optionsGrid.innerHTML = `
-        <div style="grid-column: 1 / -1; text-align: center; padding: 2rem; background: rgba(0, 240, 255, 0.06); border: 1.5px solid rgba(0, 240, 255, 0.25); border-radius: 18px;">
-          <h3 style="color: #fff; font-size: 1.35rem; margin-bottom: 0.6rem;">Round Pool Concluded</h3>
-          <p style="color: #94a3b8; font-size: 0.95rem; margin-bottom: 1.2rem;">Every question from the bank has been used without repeats.</p>
-          <button class="action-btn-clean btn-reveal-gold" onclick="switchMainScreen('screen-leaderboard')">View Leaderboard Standings →</button>
+        <div style="grid-column: 1 / -1; text-align: center; padding: 2.2rem 1.5rem; background: rgba(0, 240, 255, 0.06); border: 1.5px solid rgba(0, 240, 255, 0.3); border-radius: 20px; box-shadow: 0 10px 30px rgba(0,0,0,0.4);">
+          <h3 style="color: #fff; font-size: 1.45rem; font-weight: 800; margin-bottom: 0.5rem;">
+            ${round.name} Concluded for Group ${currentGroupIdx}
+          </h3>
+          <p style="color: #94a3b8; font-size: 0.95rem; margin-bottom: 1.6rem; max-width: 600px; margin-left: auto; margin-right: auto;">
+            ${isLastRoundOfPhase 
+              ? `All ${totalRoundsInPhase} competition rounds for Group ${currentGroupIdx} are complete! You can now bring the next triad group on stage.` 
+              : `All questions for this round have been presented. Click below to smoothly transition Group ${currentGroupIdx} into ${nextRoundObj.name}.`}
+          </p>
+          ${actionButtonsHtml}
         </div>
       `;
     }
