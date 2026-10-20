@@ -149,6 +149,127 @@ let timerInterval = null;
 
 let editingTeamId = null;
 
+// ==============================================================================
+// 💾 TOURNAMENT STATE PERSISTENCE & PHASE 1 SHUFFLE ENFORCEMENT ENGINE
+// ==============================================================================
+const STORAGE_KEY_TEAMS = "tameer_quiz_allTeamsMaster_v1";
+const STORAGE_KEY_PHASES = "tameer_quiz_phases_v1";
+const STORAGE_KEY_P1_SHUFFLED = "tameer_quiz_phase1_shuffled_v1";
+
+function isPhase1Shuffled() {
+  return localStorage.getItem(STORAGE_KEY_P1_SHUFFLED) === 'true';
+}
+
+function markPhase1Shuffled() {
+  localStorage.setItem(STORAGE_KEY_P1_SHUFFLED, 'true');
+}
+
+function saveTournamentStateToStorage() {
+  try {
+    localStorage.setItem(STORAGE_KEY_TEAMS, JSON.stringify(tournamentConfig.allTeamsMaster));
+    localStorage.setItem(STORAGE_KEY_PHASES, JSON.stringify(tournamentConfig.phases));
+  } catch (e) {
+    console.warn("Storage save failed:", e);
+  }
+}
+
+function loadTournamentStateFromStorage() {
+  try {
+    const savedTeams = localStorage.getItem(STORAGE_KEY_TEAMS);
+    if (savedTeams) {
+      const parsed = JSON.parse(savedTeams);
+      if (Array.isArray(parsed) && parsed.length > 0) {
+        tournamentConfig.allTeamsMaster = parsed;
+      }
+    }
+    const savedPhases = localStorage.getItem(STORAGE_KEY_PHASES);
+    if (savedPhases) {
+      const parsedPhases = JSON.parse(savedPhases);
+      if (Array.isArray(parsedPhases) && parsedPhases.length > 0) {
+        tournamentConfig.phases = parsedPhases;
+      }
+    }
+  } catch (e) {
+    console.warn("Storage load error:", e);
+  }
+}
+
+// ------------------------------------------------------------------------------
+// 👥 STAGE 3-TEAM TRIAD GROUP TRACKER & LIVE CONTROLLER
+// ------------------------------------------------------------------------------
+function getActiveGroupTeams(groupNameOrNum) {
+  const label = typeof groupNameOrNum === 'number' ? `Group ${groupNameOrNum}` : groupNameOrNum;
+  const activeTeams = getActivePhaseTeams();
+  return activeTeams.filter(t => t.group === label);
+}
+
+function populateStageGroupSelector() {
+  const selector = document.getElementById('stage-group-selector');
+  if (!selector) return;
+
+  const activeTeams = getActivePhaseTeams();
+  // Find all unique groups
+  const groupSet = new Set();
+  activeTeams.forEach(t => {
+    if (t.group) groupSet.add(t.group);
+  });
+
+  const groups = Array.from(groupSet).sort((a, b) => {
+    const numA = parseInt(a.replace(/\D/g, '') || '0', 10);
+    const numB = parseInt(b.replace(/\D/g, '') || '0', 10);
+    return numA - numB;
+  });
+
+  if (groups.length === 0) {
+    // Fallback if no groups yet
+    selector.innerHTML = `<option value="Group 1">Group 1 (3 Teams)</option>`;
+    return;
+  }
+
+  selector.innerHTML = groups.map(g => {
+    const teamsInG = activeTeams.filter(t => t.group === g);
+    const names = teamsInG.map(t => t.name.split(' ')[0] || `Team ${t.id}`).join(', ');
+    const isSelected = g === `Group ${currentGroupIdx}`;
+    return `<option value="${g}" ${isSelected ? 'selected' : ''}>${g} (${teamsInG.length} Teams: ${names})</option>`;
+  }).join('');
+}
+
+function onStageGroupChanged(selectedGroupVal) {
+  const num = parseInt(selectedGroupVal.replace(/\D/g, '') || '1', 10);
+  currentGroupIdx = num;
+  updateStageActiveGroupDisplay();
+  playQuizTone(520, 640, 'lock');
+}
+
+function updateStageActiveGroupDisplay() {
+  const groupLabelEl = document.getElementById('stage-active-group-name');
+  const groupTeamsEl = document.getElementById('stage-active-group-teams');
+  const selector = document.getElementById('stage-group-selector');
+
+  const groupName = `Group ${currentGroupIdx}`;
+  const teams = getActiveGroupTeams(groupName);
+
+  if (groupLabelEl) {
+    groupLabelEl.innerText = groupName;
+  }
+  if (groupTeamsEl) {
+    if (teams.length > 0) {
+      const summaryNames = teams.map(t => {
+        const parts = (t.name || `T${t.id}`).split(' ');
+        return parts.slice(0, 2).join(' ');
+      }).join(' • ');
+      groupTeamsEl.innerText = summaryNames;
+      groupTeamsEl.title = teams.map(t => t.name).join(' | ');
+    } else {
+      groupTeamsEl.innerText = "3 Teams";
+    }
+  }
+
+  if (selector && selector.value !== groupName) {
+    selector.value = groupName;
+  }
+}
+
 // Pure Text & Media Separate Question Pools
 // Only Media Round contains images/audio/video; all other rounds are strictly clean Question + Options
 const quizRoundsQuestions = {
@@ -321,6 +442,7 @@ function getActivePhaseTeams() {
 }
 
 document.addEventListener('DOMContentLoaded', () => {
+  loadTournamentStateFromStorage();
   renderPhasesLaunchDeck();
   renderCompactAnimatedLeaderboard();
   renderOfficialChampionshipBracket();
@@ -533,6 +655,13 @@ function openRoundsHubForPhase(phaseId) {
   const phase = tournamentConfig.phases[phaseIndex];
   if (!phase) return;
 
+  // MANDATORY SHUFFLE GATE FOR PHASE 1:
+  // User cannot enter Phase 1 rounds until 3-team triads are shuffled and confirmed
+  if (phaseIndex === 0 && !isPhase1Shuffled()) {
+    openTeamShufflerModal(true);
+    return;
+  }
+
   currentPhaseIdx = phaseIndex;
   updateTopTracker();
 
@@ -677,6 +806,11 @@ function enterLiveRound(phaseId, roundId) {
   currentLiveQuestionIndex = 0;
   // Play Indian KBC Grand Entrance Fanfare for round/level launch
   playQuizTone(0, 0, 'kbc-level-intro');
+
+  // Populate stage triad group selector and sync active group banner
+  populateStageGroupSelector();
+  updateStageActiveGroupDisplay();
+
   renderLiveQuestion();
   switchMainScreen('screen-round-arena');
 }
@@ -733,6 +867,7 @@ function renderLiveQuestion() {
   currentQuestionAttemptCount = 0;
   stopKbcHeartbeatLoop();
   setStageLightingState(null); // Return to default broadcast ambient lighting
+  updateStageActiveGroupDisplay();
 
   const phase = tournamentConfig.phases[currentPhaseIdx];
   const round = phase.rounds[currentRoundIdx] || phase.rounds[0];
@@ -1809,6 +1944,7 @@ function advanceSelectedSchools() {
     currentRoundIdx = 0;
     currentGroupIdx = 1;
 
+    saveTournamentStateToStorage();
     updateTopTracker();
     renderPhasesLaunchDeck();
     renderCompactAnimatedLeaderboard();
@@ -1864,6 +2000,7 @@ function saveCustomScore() {
       team.name = nameInput.value.trim();
     }
     setTeamCurrentScore(team, newScore);
+    saveTournamentStateToStorage();
     renderCompactAnimatedLeaderboard();
     renderOfficialChampionshipBracket();
   }
@@ -2781,12 +2918,13 @@ function confirmBulkPdfImport() {
 // ==============================================================================
 // 🎲 LIVE TEAM SHUFFLER & 3-TEAM TRIAD GENERATOR ENGINE
 // ==============================================================================
-let currentShuffledTriads = [];
-let isShufflingInProgress = false;
+let isShufflerMandatoryMode = false;
 
-function openTeamShufflerModal() {
+function openTeamShufflerModal(isMandatory = false) {
   const modal = document.getElementById('team-shuffler-modal');
   if (!modal) return;
+
+  isShufflerMandatoryMode = isMandatory;
 
   const currentPhase = tournamentConfig.phases[currentPhaseIdx];
   const activeTeams = getActivePhaseTeams();
@@ -2798,8 +2936,16 @@ function openTeamShufflerModal() {
 
   const totalGroups = Math.ceil(activeTeams.length / 3);
 
-  if (titleEl) titleEl.innerText = `${currentPhase.title}: Team Shuffler & 3-Team Triads`;
-  if (descEl) descEl.innerText = `Randomly randomize ${activeTeams.length} competing teams into ${totalGroups} balanced groups of 3 teams each.`;
+  if (titleEl) {
+    titleEl.innerText = isMandatory 
+      ? `Required Setup: ${currentPhase.title} Team Shuffler`
+      : `${currentPhase.title}: Team Shuffler & 3-Team Triads`;
+  }
+  if (descEl) {
+    descEl.innerText = isMandatory
+      ? `⚠️ Compulsory Shuffle Required! Click "Randomize & Form Groups" below to conduct the 11-second lottery shuffle before Phase 1 rounds can begin.`
+      : `Randomly randomize ${activeTeams.length} competing teams into ${totalGroups} balanced groups of 3 teams each.`;
+  }
   if (teamsCountEl) teamsCountEl.innerText = `${activeTeams.length} Active Teams`;
   if (groupsCountEl) groupsCountEl.innerText = `${totalGroups} Triad Groups (3 Teams / Group)`;
 
@@ -3053,12 +3199,30 @@ function applyShuffledTriadGroups() {
     });
   });
 
+  // Mark Phase 1 as officially shuffled & persisted
+  if (currentPhaseIdx === 0) {
+    markPhase1Shuffled();
+  }
+
+  // Persist updated groups & state to browser localStorage
+  saveTournamentStateToStorage();
+
+  // Populate live stage selector with the new groups
+  populateStageGroupSelector();
+  updateStageActiveGroupDisplay();
+
   renderPhasesLaunchDeck();
   renderCompactAnimatedLeaderboard();
   renderOfficialChampionshipBracket();
 
+  const wasMandatory = isShufflerMandatoryMode;
   closeTeamShufflerModal();
 
   // Show confirmation alert
   alert(`✓ Triad Group Allocations Saved! All teams for Phase ${currentPhaseIdx + 1} have been organized into 3-team competition groups.`);
+
+  // If this was triggered as compulsory step upon entering Phase 1, seamlessly proceed directly to Rounds Hub
+  if (wasMandatory) {
+    openRoundsHubForPhase(currentPhaseIdx + 1);
+  }
 }

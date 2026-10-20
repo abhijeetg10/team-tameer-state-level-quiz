@@ -2652,3 +2652,59 @@ body.live-round-immersive-mode .arena-stage-body {
   margin-left: auto;
   flex-shrink: 0;
 }
+
+/* Stage Top Triad Group Pill */
+.stage-triad-group-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  background: rgba(0, 240, 255, 0.1);
+  border: 1px solid rgba(0, 240, 255, 0.3);
+  padding: 0.22rem 0.65rem;
+  border-radius: 9999px;
+  font-size: 0.72rem;
+}
+
+.active-group-tag {
+  color: var(--cyan);
+  font-weight: 800;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+}
+
+.active-group-teams {
+  color: #cbd5e1;
+  font-weight: 600;
+  border-left: 1px solid rgba(255, 255, 255, 0.15);
+  padding-left: 0.45rem;
+  max-width: 320px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* Host Dock Group Select */
+.stage-group-select {
+  width: 100%;
+  background: rgba(15, 23, 42, 0.9);
+  border: 1.5px solid rgba(0, 240, 255, 0.4);
+  color: #00f0ff;
+  font-family: inherit;
+  font-size: 0.85rem;
+  font-weight: 800;
+  padding: 0.55rem 0.8rem;
+  border-radius: 10px;
+  outline: none;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.stage-group-select:focus {
+  border-color: #38bdf8;
+  box-shadow: 0 0 16px rgba(0, 240, 255, 0.35);
+}
+
+.stage-group-select option {
+  background: #0b1329;
+  color: #ffffff;
+}

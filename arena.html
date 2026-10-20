@@ -142,12 +142,20 @@
           
           <div class="spotlight-question-card" id="main-question-card-shell">
             
-            <!-- Stage Header Strip inside Card -->
+            <!-- Stage Header Strip inside Card with Active 3-Team Triad Details -->
             <div class="card-stage-top-strip">
-              <div class="media-format-pill" id="media-format-badge">
-                <span class="format-dot"></span>
-                <span id="format-label-text">MCQ ROUND</span>
+              <div style="display: flex; align-items: center; gap: 0.6rem;">
+                <div class="media-format-pill" id="media-format-badge">
+                  <span class="format-dot"></span>
+                  <span id="format-label-text">MCQ ROUND</span>
+                </div>
+                <!-- Active Triad Group Badge -->
+                <div class="stage-triad-group-pill" id="stage-active-group-pill">
+                  <span class="active-group-tag" id="stage-active-group-name">Group 1</span>
+                  <span class="active-group-teams" id="stage-active-group-teams">3 Teams</span>
+                </div>
               </div>
+
               <div class="live-round-title" id="current-round-title-badge">
                 Round 1 • Question 01
               </div>
@@ -212,8 +220,15 @@
             </div>
           </div>
 
-          <!-- Main Host Question Controls -->
+          <!-- Main Host Question Controls & Group Switcher -->
           <div class="dock-action-cluster">
+            <div class="dock-section-label">ACTIVE 3-TEAM GROUP</div>
+            <div style="margin-bottom: 0.5rem;">
+              <select id="stage-group-selector" class="stage-group-select" onchange="onStageGroupChanged(this.value)">
+                <!-- Dynamically populated with all formed Groups -->
+              </select>
+            </div>
+
             <div class="dock-section-label">STAGE CONTROLS</div>
             <button class="action-btn-clean btn-check-pick btn-dock-primary" id="btn-check-pick" onclick="checkSelectedOptionOnly()" title="Check if selected option is right or wrong without revealing the correct answer (Useful for buzzer rounds to pass to next team)">
               ⚡ Check Pick (Pass/Buzz)
