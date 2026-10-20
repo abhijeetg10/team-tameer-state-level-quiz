@@ -3215,3 +3215,143 @@ body.live-round-immersive-mode .arena-stage-body {
   border-color: rgba(0, 240, 255, 0.4);
   color: #00f0ff;
 }
+
+/* ==============================================================================
+   🌟 DEDICATED SEPARATE GROUPS HUB & ON-STAGE POINTS AWARDING CARD
+   ============================================================================== */
+.dedicated-groups-container {
+  background: rgba(10, 16, 34, 0.7);
+  border: 1.5px solid rgba(255, 255, 255, 0.1);
+  border-radius: 18px;
+  padding: 1.25rem 1.4rem;
+  backdrop-filter: blur(16px);
+  box-shadow: 0 16px 36px rgba(0, 0, 0, 0.5);
+}
+
+.groups-hub-top-bar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 1.2rem;
+  padding-bottom: 1rem;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+  flex-wrap: wrap;
+  gap: 1rem;
+}
+
+/* Big Stage Podium Quick Point Award Buttons (+10 / +5 / -5) */
+.pod-quick-award-actions {
+  display: flex;
+  gap: 0.25rem;
+  margin-left: 0.35rem;
+  flex-shrink: 0;
+}
+
+/* Active On-Stage Group Award Card inside screen-rounds-hub */
+.rounds-hub-active-group-card {
+  background: linear-gradient(135deg, rgba(0, 240, 255, 0.1) 0%, rgba(10, 25, 47, 0.95) 100%);
+  border: 1.5px solid rgba(0, 240, 255, 0.45);
+  border-radius: 16px;
+  padding: 1rem 1.35rem;
+  margin-bottom: 1.2rem;
+  box-shadow: 0 10px 30px rgba(0, 240, 255, 0.15);
+  display: flex;
+  flex-direction: column;
+  gap: 0.85rem;
+}
+
+.rh-stage-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+  padding-bottom: 0.6rem;
+}
+
+.rh-stage-pulse-dot {
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  background: #00f0ff;
+  box-shadow: 0 0 12px #00f0ff;
+  animation: pulse 1.5s infinite alternate;
+}
+
+.rh-stage-title {
+  font-size: 0.95rem;
+  font-weight: 900;
+  color: #fff;
+  letter-spacing: 0.06em;
+}
+
+.rh-stage-sub {
+  font-size: 0.74rem;
+  color: #94a3b8;
+  margin-top: 0.15rem;
+}
+
+.rh-teams-award-row {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 1rem;
+}
+
+@media (max-width: 900px) {
+  .rh-teams-award-row {
+    grid-template-columns: 1fr;
+  }
+}
+
+.rh-team-award-card {
+  background: rgba(15, 23, 42, 0.7);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  border-radius: 12px;
+  padding: 0.75rem 0.9rem;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.7rem;
+  transition: all 0.2s ease;
+}
+
+.rh-team-award-card:hover {
+  border-color: rgba(0, 240, 255, 0.5);
+  box-shadow: 0 0 16px rgba(0, 240, 255, 0.2);
+}
+
+.rh-team-info {
+  flex: 1;
+  min-width: 0;
+}
+
+.rh-team-slot {
+  font-size: 0.65rem;
+  font-weight: 800;
+  color: #38bdf8;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  display: block;
+}
+
+.rh-team-name {
+  font-size: 0.85rem;
+  font-weight: 800;
+  color: #fff;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  margin: 0.1rem 0;
+}
+
+.rh-team-score-num {
+  font-size: 0.85rem;
+  font-weight: 900;
+  color: #10b981;
+}
+
+.rh-team-actions {
+  display: flex;
+  gap: 0.35rem;
+  flex-shrink: 0;
+}
+

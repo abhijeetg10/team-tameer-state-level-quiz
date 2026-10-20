@@ -426,13 +426,50 @@ function updateStageActiveGroupDisplay() {
               <div class="pod-team-sub">${groupName} • Podium Slot ${slotIdx + 1}</div>
             </div>
             <div class="pod-score-badge" id="pod-score-val-${team.id}">${score} PTS</div>
+            <div class="pod-quick-award-actions">
+              <button class="btn-point-action btn-point-add" onclick="awardStageTeamPoints(${team.id}, 10)" title="Award +10 points to ${team.name}">+10</button>
+              <button class="btn-point-action btn-point-add" onclick="awardStageTeamPoints(${team.id}, 5)" title="Award +5 points to ${team.name}">+5</button>
+              <button class="btn-point-action btn-point-sub" onclick="awardStageTeamPoints(${team.id}, -5)" title="Deduct -5 points from ${team.name}">-5</button>
+            </div>
           </div>
         `;
       }).join('');
     }
   }
 
-  // 2. Render Host Dock Quick Points Award Buttons (+10 / -5 / +5)
+  // 2. Render On-Stage Teams Direct Points Awarding Row in screen-rounds-hub
+  const hubAwardRow = document.getElementById('rh-teams-award-row');
+  const hubGroupLabel = document.getElementById('rh-active-group-label');
+  if (hubGroupLabel) {
+    hubGroupLabel.innerText = `CURRENTLY ON STAGE: ${groupName.toUpperCase()}`;
+  }
+
+  if (hubAwardRow) {
+    if (teams.length === 0) {
+      hubAwardRow.innerHTML = `<span style="font-size: 0.8rem; color: #94a3b8;">No teams currently in ${groupName}.</span>`;
+    } else {
+      hubAwardRow.innerHTML = teams.map((team, idx) => {
+        const score = getTeamCurrentScore(team);
+        const shortName = team.name ? team.name.split(' ').slice(0, 3).join(' ') : `Team ${team.id}`;
+        return `
+          <div class="rh-team-award-card">
+            <div class="rh-team-info">
+              <span class="rh-team-slot">Team ${idx + 1}</span>
+              <div class="rh-team-name" title="${team.name}">${shortName}</div>
+              <div class="rh-team-score-num">${score} PTS</div>
+            </div>
+            <div class="rh-team-actions">
+              <button class="btn-point-action btn-point-add" onclick="awardStageTeamPoints(${team.id}, 10)" title="Award +10 points to ${team.name}">+10</button>
+              <button class="btn-point-action btn-point-add" onclick="awardStageTeamPoints(${team.id}, 5)" title="Award +5 points to ${team.name}">+5</button>
+              <button class="btn-point-action btn-point-sub" onclick="awardStageTeamPoints(${team.id}, -5)" title="Deduct -5 points from ${team.name}">-5</button>
+            </div>
+          </div>
+        `;
+      }).join('');
+    }
+  }
+
+  // 3. Render Host Dock Quick Points Award Buttons (+10 / -5 / +5)
   if (dockAwardList) {
     if (teams.length === 0) {
       dockAwardList.innerHTML = `<span style="font-size: 0.72rem; color: #64748b;">Select group to award points</span>`;
@@ -473,6 +510,7 @@ function awardStageTeamPoints(teamId, delta) {
 
   saveTournamentStateToStorage();
   updateStageActiveGroupDisplay();
+  renderRoundsHubGroupSelector();
   renderCompactAnimatedLeaderboard();
   renderOfficialChampionshipBracket();
 }
@@ -708,6 +746,7 @@ function switchMainScreen(screenId) {
 
   const btnMap = {
     'screen-phases': 'btn-tab-phases',
+    'screen-groups-hub': 'btn-tab-phases',
     'screen-rounds-hub': 'btn-tab-phases',
     'screen-leaderboard': 'btn-tab-leaderboard',
     'screen-analytics': 'btn-tab-analytics',
@@ -746,7 +785,12 @@ function renderPhasesLaunchDeck() {
 
     let actionButton = "";
     if (isActive) {
-      actionButton = `<button class="phase-btn-trigger btn-enter-live-phase" onclick="openRoundsHubForPhase(${p.id})">Select & Launch Rounds →</button>`;
+      actionButton = `
+        <div style="display: flex; gap: 0.5rem; width: 100%;">
+          <button class="phase-btn-trigger btn-enter-live-phase" style="flex: 1;" onclick="openGroupsHubForPhase(${p.id})">1. Choose On-Stage Group →</button>
+          <button class="phase-btn-trigger" style="background: rgba(0, 240, 255, 0.15); color: #00f0ff; border: 1px solid rgba(0, 240, 255, 0.4); padding: 0.5rem 0.8rem;" onclick="openRoundsHubForPhase(${p.id})">Rounds</button>
+        </div>
+      `;
     } else if (isCompleted) {
       actionButton = `<button class="phase-btn-trigger" style="background: rgba(16,185,129,0.15); color: #34d399; border: 1px solid rgba(16,185,129,0.3); cursor: pointer;" onclick="openRoundsHubForPhase(${p.id})">Completed Rounds Review</button>`;
     } else if (isLocked) {
@@ -856,6 +900,29 @@ const roundMetaThemes = {
   }
 };
 
+// Open the dedicated 12-Group On-Stage Selection Hub for a given phase
+function openGroupsHubForPhase(phaseId) {
+  const phaseIndex = phaseId - 1;
+  const phase = tournamentConfig.phases[phaseIndex];
+  if (!phase) return;
+
+  if (phaseIndex === 0 && !isPhase1Shuffled()) {
+    openTeamShufflerModal(true);
+    return;
+  }
+
+  currentPhaseIdx = phaseIndex;
+  updateTopTracker();
+
+  const titleEl = document.getElementById('groups-hub-title');
+  const subEl = document.getElementById('groups-hub-subtitle');
+  if (titleEl) titleEl.innerText = `${phase.title} • Choose Group On Stage`;
+  if (subEl) subEl.innerText = `${phase.subtitle}. Click any group card to put it on stage, then proceed to rounds.`;
+
+  renderRoundsHubGroupSelector();
+  switchMainScreen('screen-groups-hub');
+}
+
 // Open the dedicated Round Selection Cards Hub for a given phase
 function openRoundsHubForPhase(phaseId) {
   const phaseIndex = phaseId - 1;
@@ -932,6 +999,7 @@ function openRoundsHubForPhase(phaseId) {
   }
 
   renderRoundsHubGroupSelector();
+  updateStageActiveGroupDisplay();
   switchMainScreen('screen-rounds-hub');
 }
 
