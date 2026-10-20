@@ -27,54 +27,48 @@
   </div>
 
   <!-- Streamlined Stage Top Header -->
-  <!-- Streamlined Stage Top Header (Professional Live Academic Championship Control Room) -->
   <header class="stage-top-header">
     <div class="brand-unit">
-      <a href="index.html" class="logo-orbit-ring" title="Back to Tournament Overview">
+      <a href="index.html" class="logo-orbit-ring" title="Back to Poster">
         <div class="logo-inner-shield">
-          <img src="logo.png" alt="State Contest Emblem">
+          <img src="logo.png" alt="Logo">
         </div>
       </a>
-      <div class="brand-text-block">
-        <div class="header-main-title">STATE-LEVEL GK QUIZ CONTEST 2026</div>
-        <div class="header-sub-title">Championship Stage Broadcast & Operator Control</div>
+      <div>
+        <h1 class="header-main-title">STATE-LEVEL GK QUIZ CONTEST 2026</h1>
+        <p class="header-sub-title">Championship Stage Broadcast</p>
       </div>
     </div>
 
-    <!-- Center Stage Live Telemetry Pill -->
-    <div class="stage-tracker-pill" id="live-stage-status-bar">
-      <span class="live-dot-pulse"></span>
-      <span class="tracker-live-tag">LIVE</span>
-      <span class="tracker-sep">/</span>
-      <span id="tracker-phase-text" class="tracker-phase-val">Phase 1: League Round</span>
+    <!-- Active Stage Indicator -->
+    <div class="stage-tracker-pill">
+      <span class="active-pulse-bullet"></span>
+      <span id="tracker-phase-text">Phase 1: League Round</span>
       <span class="tracker-sep">•</span>
-      <span id="tracker-round-text" class="tracker-round-val">Round 1: MCQ</span>
+      <span id="tracker-round-text" style="color: var(--cyan);">Awaiting Phase Start</span>
     </div>
 
-    <!-- Professional Control Room Navigation -->
-    <nav class="minimal-nav-group">
+    <!-- Minimal, Clean Top Navigation -->
+    <div class="minimal-nav-group">
       <button class="minimal-nav-btn active-nav" id="btn-tab-phases" onclick="switchMainScreen('screen-phases')">
         Phases & Rounds
-      </button>
-      <button class="minimal-nav-btn" id="btn-tab-rounds-hub" onclick="openRoundsHubForActivePhase()">
-        Live Stage Room
       </button>
       <button class="minimal-nav-btn" id="btn-tab-leaderboard" onclick="switchMainScreen('screen-leaderboard')">
         Live Leaderboard
       </button>
       <button class="minimal-nav-btn" id="btn-tab-analytics" onclick="switchMainScreen('screen-analytics')">
-        Tournament Bracket
+        Grand Tournament Tree
       </button>
       <button class="minimal-nav-btn" id="btn-tab-directory" onclick="switchMainScreen('screen-directory')">
         Schools Directory
       </button>
-      <button class="nav-control-badge" id="btn-tab-admin" onclick="openAdminAccessModal()" title="Secure Quiz Master & System Authorization">
-        <span class="lock-mini-icon">🔒</span> Admin
+      <button class="minimal-nav-btn btn-admin-tab" id="btn-tab-admin" onclick="openAdminAccessModal()">
+        🔒 Admin Portal
       </button>
-      <button class="btn-fullscreen-toggle" onclick="toggleStageFullscreen()" title="Fullscreen Stage Mode (F)">
+      <button class="btn-fullscreen-toggle" onclick="toggleStageFullscreen()" title="Fullscreen Screen">
         ⛶
       </button>
-    </nav>
+    </div>
   </header>
 
   <!-- Main Presentation Shell (100vh Zero Scroll) -->
@@ -102,129 +96,60 @@
       </div>
     </section>
 
-    <!-- 1.5 PROFESSIONAL LIVE QUIZ CHAMPIONSHIP CONTROL ROOM & STAGE HUB -->
+    <!-- 1.5 DEDICATED ROUND SELECTION SCREEN FOR THE ACTIVE ON-STAGE GROUP -->
     <section id="screen-rounds-hub" class="stage-panel-view">
-      
-      <!-- Top Operational Control Bar -->
-      <div class="control-room-header">
-        <div class="cr-left-meta">
-          <div class="cr-live-badge">
-            <span class="live-dot-pulse"></span>
-            <span class="cr-live-text">LIVE CONTROL ROOM</span>
+      <div class="panel-headline-row">
+        <div>
+          <div style="display: flex; align-items: center; gap: 0.8rem;">
+            <h2 class="panel-heading-text" id="rounds-hub-title">Phase 1: Competition Rounds</h2>
+            <span class="active-ph-badge" id="rounds-hub-phase-badge" style="font-size: 0.75rem;">LIVE STAGE</span>
           </div>
-          <div class="cr-championship-title-block">
-            <h2 class="cr-heading" id="rounds-hub-title">Phase 1: League Championship</h2>
-            <div class="cr-sub-telemetry">
-              <span>Stage Matrix: 34 Teams in 12 Groups (3 Teams / Group)</span>
-              <span class="telemetry-divider">•</span>
-              <span id="cr-operator-status">Operator Active</span>
-            </div>
-          </div>
+          <p class="panel-sub-text" id="rounds-hub-subtitle">Groups take the stage one after another. Select a round below or let rounds progress sequentially.</p>
         </div>
-
-        <div class="cr-right-actions">
-          <button class="action-btn-clean" onclick="toggleKeyboardShortcutsHelp()" title="View Event Operator Hotkeys (Space, N, R, F)">
-            ⌨ Hotkeys
+        <div style="display: flex; gap: 0.8rem; align-items: center;">
+          <button class="action-btn-clean btn-shuffle-triads" onclick="openTeamShufflerModal()" title="Randomize and create balanced 3-team triads for this phase with live shuffle animation and sound">
+            🎲 Reshuffle Groups
           </button>
-          <button class="action-btn-clean btn-shuffle-triads" onclick="openTeamShufflerModal()" title="Randomize and create balanced 3-team triads for this phase with live shuffle animation">
-            🎲 Reshuffle
+          <button class="action-btn-clean btn-next-group-quick" onclick="advanceNextGroupAndStartRounds()" title="Advance to the next 3-team group and start Round 1">
+            Next Group On Stage →
           </button>
-          <button class="action-btn-clean" onclick="advanceNextGroupAndReturnToDashboard()" title="Save current group scores and queue the next sequential group">
-            Next Group (Dashboard) →
+          <button class="action-btn-clean" onclick="switchMainScreen('screen-phases')">
+            ← Phases
           </button>
-          <button class="action-btn-clean btn-reveal-gold" onclick="switchMainScreen('screen-leaderboard')">
-            Leaderboard Standings →
+          <button class="action-btn-clean" onclick="switchMainScreen('screen-leaderboard')">
+            Leaderboard →
           </button>
         </div>
       </div>
 
-      <!-- Horizontal Competition Progression Timeline (Section 7 & 8) -->
-      <div class="competition-round-timeline" id="competition-round-timeline">
-        <div class="timeline-step timeline-step-current" id="timeline-step-1">
-          <div class="timeline-step-indicator">
-            <span class="step-num">01</span>
-            <span class="step-status-tag">ACTIVE ROUND</span>
-          </div>
-          <div class="timeline-step-name">MCQ Round</div>
-          <div class="timeline-step-sub">34 Teams × 2 Qs = 68 Questions</div>
-        </div>
-
-        <div class="timeline-connector"></div>
-
-        <div class="timeline-step timeline-step-upcoming" id="timeline-step-2">
-          <div class="timeline-step-indicator">
-            <span class="step-num">02</span>
-            <span class="step-status-tag">UPCOMING</span>
-          </div>
-          <div class="timeline-step-name">Media Round</div>
-          <div class="timeline-step-sub">Visual Clues & Audio Archives</div>
-        </div>
-
-        <div class="timeline-connector"></div>
-
-        <div class="timeline-step timeline-step-upcoming" id="timeline-step-3">
-          <div class="timeline-step-indicator">
-            <span class="step-num">03</span>
-            <span class="step-status-tag">UPCOMING</span>
-          </div>
-          <div class="timeline-step-name">Buzzer Round</div>
-          <div class="timeline-step-sub">12 Groups × 5 Qs = 60 Questions</div>
-        </div>
-
-        <div class="timeline-connector"></div>
-
-        <div class="timeline-step timeline-step-upcoming" id="timeline-step-4">
-          <div class="timeline-step-indicator">
-            <span class="step-num">04</span>
-            <span class="step-status-tag">UPCOMING</span>
-          </div>
-          <div class="timeline-step-name">Rapid Fire</div>
-          <div class="timeline-step-sub">Endurance Showdown</div>
-        </div>
-      </div>
-
-      <!-- LIVE STAGE HERO SECTION: Current Live Group Spotlight (Section 5, 6 & 11) -->
-      <div class="live-stage-hero-panel" id="live-stage-hero-panel">
-        
-        <!-- Hero Header with Clear Live Status Hierarchy -->
-        <div class="hero-stage-topbar">
-          <div class="hero-live-indicator-cluster">
-            <div class="pulse-live-chip">
-              <span class="live-pulse-dot"></span>
-              <span>LIVE NOW</span>
-            </div>
-            <div class="hero-group-indicator">
-              <span class="hero-group-pill" id="hero-group-display-pill">GROUP 01 / 12</span>
-              <span class="hero-round-pill" id="hero-round-display-pill">ROUND 01 / 04</span>
+      <!-- Active On-Stage Group Spotlight & Direct Points Awarding Bar -->
+      <div class="rounds-hub-active-group-card">
+        <div class="rh-stage-header">
+          <div style="display: flex; align-items: center; gap: 0.75rem;">
+            <span class="rh-stage-pulse-dot"></span>
+            <div>
+              <span class="rh-stage-title" id="rh-active-group-label">CURRENTLY ON STAGE: GROUP 1</span>
+              <div class="rh-stage-sub">Teams compete sequentially through all 4 rounds. Award points directly or launch rounds below.</div>
             </div>
           </div>
-
-          <div class="hero-meta-stage-info">
-            <span class="stage-academic-label">State Championship Auditorium Stage</span>
-            <div class="stage-telemetry-stats" id="stage-telemetry-summary">
-              3 Contestants On Stage • Pure Sequential Competition
-            </div>
-          </div>
-
-          <div class="hero-quick-controls">
-            <button class="action-btn-clean btn-next-group-primary" onclick="advanceNextGroupAndStartRounds()" title="Complete current group and bring next group on stage immediately">
-              Bring Next Group On Stage →
+          <div style="display: flex; gap: 0.6rem; align-items: center;">
+            <span class="hub-active-stage-pill" id="hub-active-stage-pill">Group 1 of 12</span>
+            <button class="action-btn-clean btn-next-group-quick" onclick="advanceNextGroupAndStartRounds()" title="Complete current group and bring next group on stage">
+              Bring Next Group →
             </button>
           </div>
         </div>
 
-        <!-- 3 Professional Academic Team Scorecards (Section 11) -->
-        <div class="live-stage-scoreboard-grid" id="rh-teams-award-row">
-          <!-- Dynamically populated with high-readability scoreboard pods by app.js -->
+        <!-- 3 On-Stage Teams Direct Points Awarding Row -->
+        <div class="rh-teams-award-row" id="rh-teams-award-row">
+          <!-- Populated by app.js with live scores and +10 / +5 / -5 buttons for each team on stage -->
         </div>
-
       </div>
 
-      <!-- Professional Round Cards Grid (Section 7, 10 & 13) -->
+      <!-- Psychological Round Cards Grid -->
       <div class="round-cards-interactive-grid" id="round-cards-selection-container">
-        <!-- Dynamically rendered with formula breakdown and clear Primary Launch Action by app.js -->
+        <!-- Dynamically rendered by app.js with rich icons, color codes and launch buttons -->
       </div>
-
     </section>
 
     <!-- 2. BROADCAST MEDIA & QUESTION ARENA (Pure Immersive 2-Column Stage) -->
@@ -903,83 +828,6 @@
       <!-- Live Interactive Visual Display of 3-Team Triads -->
       <div class="shuffled-triads-stage-grid" id="shuffled-triads-display-grid">
         <!-- Dynamically rendered triad cards with glowing team slots -->
-      </div>
-    </div>
-  </div>
-
-  <!-- MODAL: OPERATOR KEYBOARD SHORTCUTS HELP -->
-  <div class="modal-backdrop-layer" id="hotkeys-help-modal">
-    <div class="modal-content-card" style="max-width: 540px; text-align: left;">
-      <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.8rem;">
-        <div style="display: flex; align-items: center; gap: 0.6rem;">
-          <span style="font-size: 1.4rem;">⌨</span>
-          <h3 style="font-size: 1.35rem; font-weight: 800; color: #fff;">Operator Keyboard Shortcuts</h3>
-        </div>
-        <button class="modal-close-x" onclick="toggleKeyboardShortcutsHelp()">✕</button>
-      </div>
-      <p style="color: #94a3b8; font-size: 0.84rem; margin-bottom: 1.2rem;">
-        Use these live event hotkeys to control timers, advance questions, and manage the competition without reaching for the mouse.
-      </p>
-
-      <div class="hotkeys-grid-table">
-        <div class="hotkey-row">
-          <kbd class="key-badge">SPACE</kbd>
-          <span class="hotkey-desc">Start / Pause Countdown Timer</span>
-        </div>
-        <div class="hotkey-row">
-          <kbd class="key-badge">N</kbd>
-          <span class="hotkey-desc">Next Stage Question</span>
-        </div>
-        <div class="hotkey-row">
-          <kbd class="key-badge">R</kbd>
-          <span class="hotkey-desc">Reveal Correct Answer</span>
-        </div>
-        <div class="hotkey-row">
-          <kbd class="key-badge">F</kbd>
-          <span class="hotkey-desc">Toggle Fullscreen Arena</span>
-        </div>
-        <div class="hotkey-row">
-          <kbd class="key-badge">1 / 2 / 3</kbd>
-          <span class="hotkey-desc">Quick Award +10 to Team 1, 2, or 3</span>
-        </div>
-        <div class="hotkey-row">
-          <kbd class="key-badge">ESC</kbd>
-          <span class="hotkey-desc">Close Active Dialog / Exit Broadcast Fullscreen</span>
-        </div>
-      </div>
-
-      <div style="display: flex; justify-content: flex-end; margin-top: 1.2rem;">
-        <button class="action-btn-clean btn-reveal-gold" onclick="toggleKeyboardShortcutsHelp()">Got It</button>
-      </div>
-    </div>
-  </div>
-
-  <!-- MODAL: SAFE SCORE DEDUCTION CONFIRMATION -->
-  <div class="modal-backdrop-layer" id="safety-deduct-modal">
-    <div class="modal-content-card" style="max-width: 460px; text-align: center;">
-      <div style="font-size: 2.2rem; margin-bottom: 0.4rem;">⚠️</div>
-      <h3 style="font-size: 1.3rem; font-weight: 800; color: #fff; margin-bottom: 0.4rem;">Confirm Score Deduction</h3>
-      <p style="color: #94a3b8; font-size: 0.88rem; margin-bottom: 1.2rem;" id="safety-deduct-prompt">
-        Are you sure you want to deduct 5 points from this contestant?
-      </p>
-
-      <div class="safety-score-delta-box">
-        <div>
-          <span style="font-size: 0.72rem; color: #94a3b8; display: block;">CURRENT SCORE</span>
-          <span style="font-size: 1.4rem; font-weight: 900; color: #fff;" id="safety-cur-score">0 PTS</span>
-        </div>
-        <div style="font-size: 1.5rem; color: #ef4444; font-weight: 900;">➔</div>
-        <div>
-          <span style="font-size: 0.72rem; color: #ef4444; display: block;">NEW SCORE</span>
-          <span style="font-size: 1.4rem; font-weight: 900; color: #ef4444;" id="safety-new-score">0 PTS</span>
-        </div>
-      </div>
-
-      <div style="display: flex; justify-content: center; gap: 0.8rem; margin-top: 1.4rem;">
-        <button class="action-btn-clean" onclick="closeSafetyDeductModal()">Cancel</button>
-        <button class="action-btn-clean" id="btn-confirm-safe-deduct" style="background: #ef4444; color: #fff; border-color: #ef4444; font-weight: 900;">
-          Confirm -5 Deduction
-        </button>
       </div>
     </div>
   </div>

@@ -437,87 +437,36 @@ function updateStageActiveGroupDisplay() {
     }
   }
 
-  // 2. Render On-Stage Teams Direct Points Awarding Row in screen-rounds-hub (Academic Redesign)
+  // 2. Render On-Stage Teams Direct Points Awarding Row in screen-rounds-hub
   const hubAwardRow = document.getElementById('rh-teams-award-row');
-  const heroGroupPill = document.getElementById('hero-group-display-pill');
-  const heroRoundPill = document.getElementById('hero-round-display-pill');
-  const stageTelemetry = document.getElementById('stage-telemetry-summary');
+  const hubGroupLabel = document.getElementById('rh-active-group-label');
+  const stagePill = document.getElementById('hub-active-stage-pill');
 
-  if (heroGroupPill) {
-    const formattedGroup = currentGroupIdx < 10 ? `0${currentGroupIdx}` : `${currentGroupIdx}`;
-    heroGroupPill.innerText = `GROUP ${formattedGroup} / 12`;
+  if (hubGroupLabel) {
+    hubGroupLabel.innerText = `CURRENTLY ON STAGE: ${groupName.toUpperCase()}`;
   }
-  if (heroRoundPill) {
-    const rNum = (currentRoundIdx + 1) < 10 ? `0${currentRoundIdx + 1}` : `${currentRoundIdx + 1}`;
-    heroRoundPill.innerText = `ROUND ${rNum} / 04`;
-  }
-  if (stageTelemetry) {
-    stageTelemetry.innerText = `3 Teams Currently On Stage • Live Academic Scoring Controls`;
-  }
-
-  // Synchronize Round Timeline step highlights (MCQ, Media, Buzzer, Rapid)
-  for (let s = 1; s <= 4; s++) {
-    const stepEl = document.getElementById(`timeline-step-${s}`);
-    if (stepEl) {
-      stepEl.classList.remove('timeline-step-completed', 'timeline-step-current', 'timeline-step-upcoming');
-      const tagEl = stepEl.querySelector('.step-status-tag');
-      if (s < currentRoundIdx + 1) {
-        stepEl.classList.add('timeline-step-completed');
-        if (tagEl) tagEl.innerText = '✓ COMPLETED';
-      } else if (s === currentRoundIdx + 1) {
-        stepEl.classList.add('timeline-step-current');
-        if (tagEl) tagEl.innerText = '● ACTIVE ROUND';
-      } else {
-        stepEl.classList.add('timeline-step-upcoming');
-        if (tagEl) tagEl.innerText = '○ UPCOMING';
-      }
-    }
+  if (stagePill) {
+    stagePill.innerText = `● On Stage: ${groupName} of 12`;
   }
 
   if (hubAwardRow) {
     if (teams.length === 0) {
-      hubAwardRow.innerHTML = `<div style="grid-column: 1 / -1; text-align: center; color: #94a3b8; padding: 1.5rem;">No teams currently in ${groupName}. Use Reshuffle to generate triads.</div>`;
+      hubAwardRow.innerHTML = `<span style="font-size: 0.8rem; color: #94a3b8;">No teams currently in ${groupName}.</span>`;
     } else {
-      // Calculate ranks based on current points among on-stage teams
-      const sortedByScore = [...teams].sort((a, b) => getTeamCurrentScore(b) - getTeamCurrentScore(a));
-      
       hubAwardRow.innerHTML = teams.map((team, idx) => {
         const score = getTeamCurrentScore(team);
-        const rankIdx = sortedByScore.findIndex(t => t.id === team.id) + 1;
-        const cleanName = team.name || `Team ${team.id}`;
-        const slotLabel = `TEAM 0${idx + 1}`;
-        const isAnswering = (idx === 0); // Active answering cue for first team on stage
-
+        const shortName = team.name ? team.name.split(' ').slice(0, 3).join(' ') : `Team ${team.id}`;
         return `
-          <div class="academic-score-card ${isAnswering ? 'answering-focus' : ''}" id="academic-card-team-${team.id}">
-            <div class="asc-top-header">
-              <span class="asc-slot-badge">${slotLabel}</span>
-              <span class="asc-rank-pill">#${rankIdx} IN GROUP</span>
+          <div class="rh-team-award-card">
+            <div class="rh-team-info">
+              <span class="rh-team-slot">Team ${idx + 1}</span>
+              <div class="rh-team-name" title="${team.name}">${shortName}</div>
+              <div class="rh-team-score-num">${score} PTS</div>
             </div>
-            
-            <div class="asc-team-body">
-              <h4 class="asc-team-name" title="${cleanName}">${cleanName}</h4>
-              <div class="asc-status-chip ${isAnswering ? 'status-answering' : 'status-waiting'}">
-                <span class="status-dot"></span>
-                <span>${isAnswering ? 'ANSWERING' : 'WAITING'}</span>
-              </div>
-            </div>
-
-            <div class="asc-score-display">
-              <div class="asc-score-value">${score}</div>
-              <div class="asc-score-label">POINTS</div>
-            </div>
-
-            <div class="asc-controls-strip">
-              <button class="asc-btn-pts asc-btn-add" onclick="awardStageTeamPoints(${team.id}, 10)" title="Award +10 points to ${cleanName}">
-                +10
-              </button>
-              <button class="asc-btn-pts asc-btn-add" onclick="awardStageTeamPoints(${team.id}, 5)" title="Award +5 points to ${cleanName}">
-                +5
-              </button>
-              <button class="asc-btn-pts asc-btn-sub" onclick="requestSafeScoreDeduct(${team.id})" title="Safely deduct -5 points with confirmation">
-                −5
-              </button>
+            <div class="rh-team-actions">
+              <button class="btn-point-action btn-point-add" onclick="awardStageTeamPoints(${team.id}, 10)" title="Award +10 points to ${team.name}">+10</button>
+              <button class="btn-point-action btn-point-add" onclick="awardStageTeamPoints(${team.id}, 5)" title="Award +5 points to ${team.name}">+5</button>
+              <button class="btn-point-action btn-point-sub" onclick="awardStageTeamPoints(${team.id}, -5)" title="Deduct -5 points from ${team.name}">-5</button>
             </div>
           </div>
         `;
@@ -1032,19 +981,17 @@ function openRoundsHubForPhase(phaseId) {
             <div class="rc-stats-strip">
               <div class="rc-stat-item">
                 <span class="rc-stat-num">${r.questionsRequired}</span>
-                <span class="rc-stat-lbl">TOTAL QUESTIONS</span>
+                <span class="rc-stat-lbl">Questions Required</span>
               </div>
               <div class="rc-stat-item">
-                <span class="rc-stat-lbl" style="font-weight: 700; color: #fff;">CALCULATION:</span>
-                <span class="rc-stat-val" style="color: ${theme.badgeColor}; font-weight: 600;">
-                  ${r.id === 1 ? '34 Teams × 2 Questions' : (r.id === 2 ? '34 Teams × 2 Questions' : (r.id === 3 ? '12 Groups × 5 Questions' : r.remark))}
-                </span>
+                <span class="rc-stat-lbl" style="font-weight: 700; color: #fff;">Format Rule:</span>
+                <span class="rc-stat-val" style="color: ${theme.badgeColor};">${r.remark}</span>
               </div>
             </div>
           </div>
 
-          <button class="rc-launch-btn ${isCurrentActiveRound ? 'rc-launch-btn-primary' : ''}" style="background: ${theme.badgeColor}; color: #020617;" onclick="launchRoundFromCard(${phase.id}, ${r.id})">
-            ${isCurrentActiveRound ? '▶ RESUME ' + r.name + ' ON SCREEN' : 'Launch ' + r.name + ' On Screen →'}
+          <button class="rc-launch-btn" style="background: ${theme.badgeColor}; color: #020617;" onclick="launchRoundFromCard(${phase.id}, ${r.id})">
+            Launch ${r.name} on Screen →
           </button>
         </div>
       `;
@@ -3645,140 +3592,3 @@ function applyShuffledTriadGroups() {
     openRoundsHubForPhase(currentPhaseIdx + 1);
   }
 }
-
-// ==============================================================================
-// 🛡️ SCORE SAFETY & OPERATOR HOTKEYS ENGINE (SECTIONS 12, 15, 16)
-// ==============================================================================
-let pendingDeductTeamId = null;
-
-function requestSafeScoreDeduct(teamId) {
-  const team = tournamentConfig.allTeamsMaster.find(t => t.id === teamId);
-  if (!team) return;
-
-  pendingDeductTeamId = teamId;
-  const curScore = getTeamCurrentScore(team);
-  const newScore = Math.max(0, curScore - 5);
-
-  const promptEl = document.getElementById('safety-deduct-prompt');
-  const curEl = document.getElementById('safety-cur-score');
-  const newEl = document.getElementById('safety-new-score');
-  const modal = document.getElementById('safety-deduct-modal');
-  const confirmBtn = document.getElementById('btn-confirm-safe-deduct');
-
-  if (promptEl) promptEl.innerText = `Deduct 5 points from ${team.name}?`;
-  if (curEl) curEl.innerText = `${curScore} PTS`;
-  if (newEl) newEl.innerText = `${newScore} PTS`;
-
-  if (confirmBtn) {
-    confirmBtn.onclick = function() {
-      confirmSafeScoreDeduct();
-    };
-  }
-
-  if (modal) modal.classList.add('active');
-}
-
-function confirmSafeScoreDeduct() {
-  if (pendingDeductTeamId !== null) {
-    awardStageTeamPoints(pendingDeductTeamId, -5);
-    pendingDeductTeamId = null;
-  }
-  closeSafetyDeductModal();
-}
-
-function closeSafetyDeductModal() {
-  const modal = document.getElementById('safety-deduct-modal');
-  if (modal) modal.classList.remove('active');
-  pendingDeductTeamId = null;
-}
-
-function toggleKeyboardShortcutsHelp() {
-  const modal = document.getElementById('hotkeys-help-modal');
-  if (modal) {
-    modal.classList.toggle('active');
-  }
-}
-
-function advanceNextGroupAndReturnToDashboard() {
-  const totalGroups = 12;
-  if (currentGroupIdx < totalGroups) {
-    currentGroupIdx++;
-  } else {
-    currentGroupIdx = 1;
-  }
-  updateStageActiveGroupDisplay();
-  renderRoundsHubGroupSelector();
-  saveTournamentStateToStorage();
-  
-  // Return to Phases & Rounds overview dashboard so next group has time to take stage
-  openRoundsHubForPhase(currentPhaseIdx + 1);
-  alert(`✓ Stage Cleared! Group ${currentGroupIdx} is now queued for stage entry.`);
-}
-
-function advanceNextGroupAndStartRounds() {
-  const totalGroups = 12;
-  if (currentGroupIdx < totalGroups) {
-    currentGroupIdx++;
-  } else {
-    currentGroupIdx = 1;
-  }
-  currentRoundIdx = 0; // Reset to Round 1 for newly arrived group
-  updateStageActiveGroupDisplay();
-  renderRoundsHubGroupSelector();
-  saveTournamentStateToStorage();
-  
-  // Directly launch Round 1 on big screen
-  launchStageRound(1);
-}
-
-// Master Keyboard Shortcuts for Live Stage Event Coordinator
-window.addEventListener('keydown', (e) => {
-  // Ignore keystrokes when typing inside text inputs, textareas, or selects
-  const activeTag = document.activeElement ? document.activeElement.tagName.toLowerCase() : '';
-  if (activeTag === 'input' || activeTag === 'textarea' || activeTag === 'select') {
-    return;
-  }
-
-  // ESC: Close open modals / dialogs
-  if (e.key === 'Escape') {
-    closeSafetyDeductModal();
-    const hotkeysModal = document.getElementById('hotkeys-help-modal');
-    if (hotkeysModal && hotkeysModal.classList.contains('active')) {
-      hotkeysModal.classList.remove('active');
-    }
-    const shufflerModal = document.getElementById('team-shuffler-modal');
-    if (shufflerModal && shufflerModal.classList.contains('active') && !isShufflerMandatoryMode) {
-      closeTeamShufflerModal();
-    }
-    return;
-  }
-
-  // Hotkeys active when question arena is on screen
-  const arenaScreen = document.getElementById('screen-round-arena');
-  const isArenaActive = arenaScreen && arenaScreen.classList.contains('screen-active');
-
-  if (e.code === 'Space') {
-    e.preventDefault();
-    toggleTimer();
-  } else if (e.key === 'n' || e.key === 'N' || e.key === 'ArrowRight') {
-    e.preventDefault();
-    if (typeof nextQuestion === 'function') nextQuestion();
-  } else if (e.key === 'ArrowLeft') {
-    e.preventDefault();
-    if (typeof prevQuestion === 'function') prevQuestion();
-  } else if (e.key === 'r' || e.key === 'R') {
-    e.preventDefault();
-    if (typeof revealAnswer === 'function') revealAnswer();
-  } else if (e.key === 'f' || e.key === 'F') {
-    e.preventDefault();
-    if (typeof toggleFullscreen === 'function') toggleFullscreen();
-  } else if (e.key === '1' || e.key === '2' || e.key === '3') {
-    // Quick +10 to team 1, 2, or 3 on stage
-    const groupName = `Group ${currentGroupIdx}`;
-    const teams = getActiveGroupTeams(groupName);
-    const slotIdx = parseInt(e.key, 10) - 1;
-    if (teams && teams[slotIdx]) {
-      awardStageTeamPoints(teams[slotIdx].id, 10);
-    }
-  }
-});
