@@ -119,19 +119,27 @@
         </div>
       </div>
 
-      <!-- Phase 3-Team Triad Selector Bar: Pick which group takes the stage -->
+      <!-- Phase 3-Team Triad Selector & Stage Control Bar: Pick which group takes the stage -->
       <div class="rounds-hub-group-bar" id="rounds-hub-group-bar">
         <div class="hub-group-bar-header">
-          <div style="display: flex; align-items: center; gap: 0.6rem;">
-            <span class="hub-group-icon">👥</span>
+          <div class="hub-group-info-left">
+            <span class="hub-group-icon">🎭</span>
             <div>
-              <span class="hub-group-label">CURRENT COMPETITION GROUP ON STAGE</span>
-              <div class="hub-group-sub">Select group (3 teams), then launch the round below</div>
+              <div class="hub-group-label">ON-STAGE GROUP SELECTION</div>
+              <div class="hub-group-sub">Select which 3-team group takes the stage. All 4 rounds will be played for this group.</div>
             </div>
           </div>
-          <div class="hub-group-chips-scroll" id="hub-group-chips-container">
-            <!-- Group 1 through Group 12 chips generated dynamically by app.js -->
+          <div class="hub-stage-actions">
+            <span class="hub-active-stage-pill" id="hub-active-stage-pill">Active: Group 1</span>
+            <button class="action-btn-clean btn-next-group-quick" onclick="advanceToNextGroup()" title="Mark current group done and bring next group on stage">
+              Next Group On Stage →
+            </button>
           </div>
+        </div>
+
+        <!-- 3-Team Triad Cards Grid with Played Status, Live Scores, and Stage Highlighting -->
+        <div class="hub-groups-grid" id="hub-group-chips-container">
+          <!-- Dynamically generated with rich cards by app.js -->
         </div>
       </div>
 
@@ -244,10 +252,11 @@
           <!-- Main Host Question Controls & Group Switcher -->
           <div class="dock-action-cluster">
             <div class="dock-section-label">ACTIVE 3-TEAM GROUP</div>
-            <div style="margin-bottom: 0.5rem;">
-              <select id="stage-group-selector" class="stage-group-select" onchange="onStageGroupChanged(this.value)">
+            <div style="margin-bottom: 0.5rem; display: flex; gap: 0.4rem;">
+              <select id="stage-group-selector" class="stage-group-select" onchange="onStageGroupChanged(this.value)" style="flex: 1;">
                 <!-- Dynamically populated with all formed Groups -->
               </select>
+              <button class="action-btn-clean btn-dock-action" onclick="advanceToNextGroup()" style="padding: 0.35rem 0.6rem; font-size: 0.72rem; white-space: nowrap;" title="Move to Next Group">Next ❯</button>
             </div>
 
             <div class="dock-section-label">STAGE CONTROLS</div>

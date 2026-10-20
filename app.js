@@ -252,10 +252,43 @@ function selectHubGroup(groupName) {
   playQuizTone(520, 640, 'lock');
 }
 
-// Render dynamic triad chips in the Rounds Selection Hub
+// Move to next group in sequence, marking current as played and updating colors
+function advanceToNextGroup() {
+  const activeTeams = getActivePhaseTeams();
+  const groupSet = new Set();
+  activeTeams.forEach(t => {
+    if (t.group) groupSet.add(t.group);
+  });
+
+  const groups = Array.from(groupSet).sort((a, b) => {
+    const numA = parseInt(a.replace(/\D/g, '') || '0', 10);
+    const numB = parseInt(b.replace(/\D/g, '') || '0', 10);
+    return numA - numB;
+  });
+
+  if (groups.length === 0) return;
+
+  const currentIdxInArray = groups.indexOf(`Group ${currentGroupIdx}`);
+  let nextGroup;
+  if (currentIdxInArray >= 0 && currentIdxInArray < groups.length - 1) {
+    nextGroup = groups[currentIdxInArray + 1];
+  } else {
+    // Loop back to first group
+    nextGroup = groups[0];
+  }
+
+  selectHubGroup(nextGroup);
+}
+
+// Render dynamic triad cards in the Rounds Selection Hub with live scores & played status
 function renderRoundsHubGroupSelector() {
   const container = document.getElementById('hub-group-chips-container');
+  const stagePill = document.getElementById('hub-active-stage-pill');
   if (!container) return;
+
+  if (stagePill) {
+    stagePill.innerText = `● On Stage: Group ${currentGroupIdx}`;
+  }
 
   const activeTeams = getActivePhaseTeams();
   const groupSet = new Set();
@@ -270,21 +303,61 @@ function renderRoundsHubGroupSelector() {
   });
 
   if (groups.length === 0) {
-    container.innerHTML = `<span style="color: #64748b; font-size: 0.8rem;">No groups formed yet. Click Shuffle above.</span>`;
+    container.innerHTML = `
+      <div style="grid-column: 1 / -1; text-align: center; color: #94a3b8; font-size: 0.9rem; padding: 1.5rem; background: rgba(255, 255, 255, 0.02); border-radius: 12px; border: 1px dashed rgba(255, 255, 255, 0.1);">
+        No groups formed yet. Click <strong>"🎲 Shuffle 3-Team Groups"</strong> above to organize teams into balanced triads.
+      </div>
+    `;
     return;
   }
 
   container.innerHTML = groups.map(g => {
     const teamsInG = activeTeams.filter(t => t.group === g);
     const isActive = (g === `Group ${currentGroupIdx}`);
-    const schoolPreview = teamsInG.map(t => (t.name || `T${t.id}`).split(' ')[0]).join(', ');
+    
+    // Check if group has played (sum of scores > 0)
+    const totalGroupPoints = teamsInG.reduce((sum, t) => sum + getTeamCurrentScore(t), 0);
+    const isPlayed = totalGroupPoints > 0;
+
+    let cardStatusClass = 'group-card-pending';
+    let statusBadgeText = 'PENDING';
+    let statusBadgeColor = '#94a3b8';
+
+    if (isActive) {
+      cardStatusClass = 'group-card-on-stage';
+      statusBadgeText = '★ ON STAGE';
+      statusBadgeColor = '#00f0ff';
+    } else if (isPlayed) {
+      cardStatusClass = 'group-card-played';
+      statusBadgeText = `✓ PLAYED (${totalGroupPoints} PTS)`;
+      statusBadgeColor = '#10b981';
+    }
+
+    const teamRowsHtml = teamsInG.map(t => {
+      const score = getTeamCurrentScore(t);
+      const shortName = t.name ? t.name.split(' ').slice(0, 3).join(' ') : `Team ${t.id}`;
+      return `
+        <div class="triad-member-row">
+          <span class="triad-school-name" title="${t.name}">• ${shortName}</span>
+          <span class="triad-school-pts ${score > 0 ? 'pts-positive' : ''}">${score} PTS</span>
+        </div>
+      `;
+    }).join('');
 
     return `
-      <div class="hub-group-chip ${isActive ? 'active-hub-chip' : ''}" onclick="selectHubGroup('${g}')">
-        <span class="hub-chip-title">${g} ${isActive ? '● (ON STAGE)' : ''}</span>
-        <span class="hub-chip-schools" title="${teamsInG.map(t => t.name).join(' | ')}">
-          ${teamsInG.length} Teams: ${schoolPreview}
-        </span>
+      <div class="hub-triad-card ${cardStatusClass}" onclick="selectHubGroup('${g}')" title="Click to put ${g} on stage">
+        <div class="hub-triad-header">
+          <div class="hub-triad-title">${g}</div>
+          <span class="hub-triad-badge" style="color: ${statusBadgeColor}; border-color: ${statusBadgeColor};">
+            ${statusBadgeText}
+          </span>
+        </div>
+        <div class="hub-triad-teams-list">
+          ${teamRowsHtml}
+        </div>
+        <button class="hub-triad-action-btn ${isActive ? 'btn-active-stage' : ''}">
+          ${isActive ? 'CURRENTLY ON STAGE' : 'Bring To Stage →'}
+        </button>
       </div>
     `;
   }).join('');
