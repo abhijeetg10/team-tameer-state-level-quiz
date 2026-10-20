@@ -100,7 +100,8 @@ const tournamentConfig = {
       rounds: [
         { id: 1, name: "Round 1: MCQ", questionsRequired: 68, remark: "Two Questions for one Team" },
         { id: 2, name: "Round 2: Media Round", questionsRequired: 68, remark: "Images, Audio & Video Clues" },
-        { id: 3, name: "Round 3: Buzzer", questionsRequired: 60, remark: "5 Questions for 1 Group" }
+        { id: 3, name: "Round 3: Buzzer", questionsRequired: 60, remark: "5 Questions for 1 Group" },
+        { id: 4, name: "Round 4: Rapid Fire", questionsRequired: 180, remark: "Fast-Paced Direct Questions" }
       ]
     },
     {
@@ -238,13 +239,64 @@ function onStageGroupChanged(selectedGroupVal) {
   const num = parseInt(selectedGroupVal.replace(/\D/g, '') || '1', 10);
   currentGroupIdx = num;
   updateStageActiveGroupDisplay();
+  renderRoundsHubGroupSelector();
   playQuizTone(520, 640, 'lock');
 }
 
+function selectHubGroup(groupName) {
+  const num = parseInt(groupName.replace(/\D/g, '') || '1', 10);
+  currentGroupIdx = num;
+  renderRoundsHubGroupSelector();
+  populateStageGroupSelector();
+  updateStageActiveGroupDisplay();
+  playQuizTone(520, 640, 'lock');
+}
+
+// Render dynamic triad chips in the Rounds Selection Hub
+function renderRoundsHubGroupSelector() {
+  const container = document.getElementById('hub-group-chips-container');
+  if (!container) return;
+
+  const activeTeams = getActivePhaseTeams();
+  const groupSet = new Set();
+  activeTeams.forEach(t => {
+    if (t.group) groupSet.add(t.group);
+  });
+
+  const groups = Array.from(groupSet).sort((a, b) => {
+    const numA = parseInt(a.replace(/\D/g, '') || '0', 10);
+    const numB = parseInt(b.replace(/\D/g, '') || '0', 10);
+    return numA - numB;
+  });
+
+  if (groups.length === 0) {
+    container.innerHTML = `<span style="color: #64748b; font-size: 0.8rem;">No groups formed yet. Click Shuffle above.</span>`;
+    return;
+  }
+
+  container.innerHTML = groups.map(g => {
+    const teamsInG = activeTeams.filter(t => t.group === g);
+    const isActive = (g === `Group ${currentGroupIdx}`);
+    const schoolPreview = teamsInG.map(t => (t.name || `T${t.id}`).split(' ')[0]).join(', ');
+
+    return `
+      <div class="hub-group-chip ${isActive ? 'active-hub-chip' : ''}" onclick="selectHubGroup('${g}')">
+        <span class="hub-chip-title">${g} ${isActive ? '● (ON STAGE)' : ''}</span>
+        <span class="hub-chip-schools" title="${teamsInG.map(t => t.name).join(' | ')}">
+          ${teamsInG.length} Teams: ${schoolPreview}
+        </span>
+      </div>
+    `;
+  }).join('');
+}
+
+// Synchronize on-screen 3-team podium display and host dock scoring buttons
 function updateStageActiveGroupDisplay() {
   const groupLabelEl = document.getElementById('stage-active-group-name');
   const groupTeamsEl = document.getElementById('stage-active-group-teams');
   const selector = document.getElementById('stage-group-selector');
+  const stagePodsStrip = document.getElementById('stage-teams-competing-strip');
+  const dockAwardList = document.getElementById('dock-team-award-buttons');
 
   const groupName = `Group ${currentGroupIdx}`;
   const teams = getActiveGroupTeams(groupName);
@@ -252,6 +304,7 @@ function updateStageActiveGroupDisplay() {
   if (groupLabelEl) {
     groupLabelEl.innerText = groupName;
   }
+
   if (groupTeamsEl) {
     if (teams.length > 0) {
       const summaryNames = teams.map(t => {
@@ -268,6 +321,87 @@ function updateStageActiveGroupDisplay() {
   if (selector && selector.value !== groupName) {
     selector.value = groupName;
   }
+
+  // 1. Render Big Screen 3-Team Podium Pods
+  if (stagePodsStrip) {
+    if (teams.length === 0) {
+      stagePodsStrip.innerHTML = `
+        <div style="grid-column: 1 / -1; text-align: center; color: #94a3b8; font-size: 0.8rem; padding: 0.4rem;">
+          No teams assigned to ${groupName}. Use Team Shuffler to form balanced triads.
+        </div>
+      `;
+    } else {
+      stagePodsStrip.innerHTML = [0, 1, 2].map(slotIdx => {
+        const team = teams[slotIdx];
+        if (!team) {
+          return `
+            <div class="stage-team-podium-pod pod-team-${slotIdx + 1}" style="opacity: 0.4;">
+              <span class="pod-slot-badge">T${slotIdx + 1}</span>
+              <div class="pod-name-block">
+                <div class="pod-team-name" style="color: #64748b;">(Empty Slot)</div>
+              </div>
+            </div>
+          `;
+        }
+
+        const score = getTeamCurrentScore(team);
+        return `
+          <div class="stage-team-podium-pod pod-team-${slotIdx + 1}" id="stage-pod-team-${team.id}">
+            <span class="pod-slot-badge">T${slotIdx + 1}</span>
+            <div class="pod-name-block">
+              <div class="pod-team-name" title="${team.name}">${team.name}</div>
+              <div class="pod-team-sub">${groupName} • Podium Slot ${slotIdx + 1}</div>
+            </div>
+            <div class="pod-score-badge" id="pod-score-val-${team.id}">${score} PTS</div>
+          </div>
+        `;
+      }).join('');
+    }
+  }
+
+  // 2. Render Host Dock Quick Points Award Buttons (+10 / -5 / +5)
+  if (dockAwardList) {
+    if (teams.length === 0) {
+      dockAwardList.innerHTML = `<span style="font-size: 0.72rem; color: #64748b;">Select group to award points</span>`;
+    } else {
+      dockAwardList.innerHTML = teams.map(team => {
+        const score = getTeamCurrentScore(team);
+        const shortName = team.name ? team.name.split(' ').slice(0, 3).join(' ') : `Team ${team.id}`;
+        return `
+          <div class="dock-team-award-row">
+            <span class="dock-team-award-name" title="${team.name}">${shortName}: <strong>${score}p</strong></span>
+            <div class="dock-award-actions">
+              <button class="btn-point-action btn-point-add" onclick="awardStageTeamPoints(${team.id}, 10)" title="Award +10 points to this team">+10</button>
+              <button class="btn-point-action btn-point-add" onclick="awardStageTeamPoints(${team.id}, 5)" title="Award +5 points to this team">+5</button>
+              <button class="btn-point-action btn-point-sub" onclick="awardStageTeamPoints(${team.id}, -5)" title="Deduct -5 points from this team">-5</button>
+            </div>
+          </div>
+        `;
+      }).join('');
+    }
+  }
+}
+
+// Award or deduct points for an on-stage team and sync leaderboard + storage
+function awardStageTeamPoints(teamId, delta) {
+  const team = tournamentConfig.allTeamsMaster.find(t => t.id === teamId);
+  if (!team) return;
+
+  const currentScore = getTeamCurrentScore(team);
+  const newScore = Math.max(0, currentScore + delta);
+  setTeamCurrentScore(team, newScore);
+
+  // Sound feedback
+  if (delta > 0) {
+    playQuizTone(587.33, 880, 'success');
+  } else {
+    playQuizTone(164.81, 130.81, 'wrong');
+  }
+
+  saveTournamentStateToStorage();
+  updateStageActiveGroupDisplay();
+  renderCompactAnimatedLeaderboard();
+  renderOfficialChampionshipBracket();
 }
 
 // Pure Text & Media Separate Question Pools
@@ -724,6 +858,7 @@ function openRoundsHubForPhase(phaseId) {
     }).join('');
   }
 
+  renderRoundsHubGroupSelector();
   switchMainScreen('screen-rounds-hub');
 }
 

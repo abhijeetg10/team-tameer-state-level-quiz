@@ -119,6 +119,22 @@
         </div>
       </div>
 
+      <!-- Phase 3-Team Triad Selector Bar: Pick which group takes the stage -->
+      <div class="rounds-hub-group-bar" id="rounds-hub-group-bar">
+        <div class="hub-group-bar-header">
+          <div style="display: flex; align-items: center; gap: 0.6rem;">
+            <span class="hub-group-icon">👥</span>
+            <div>
+              <span class="hub-group-label">CURRENT COMPETITION GROUP ON STAGE</span>
+              <div class="hub-group-sub">Select group (3 teams), then launch the round below</div>
+            </div>
+          </div>
+          <div class="hub-group-chips-scroll" id="hub-group-chips-container">
+            <!-- Group 1 through Group 12 chips generated dynamically by app.js -->
+          </div>
+        </div>
+      </div>
+
       <!-- Psychological Round Cards Grid -->
       <div class="round-cards-interactive-grid" id="round-cards-selection-container">
         <!-- Dynamically rendered by app.js with rich icons, color codes and launch buttons -->
@@ -159,6 +175,11 @@
               <div class="live-round-title" id="current-round-title-badge">
                 Round 1 • Question 01
               </div>
+            </div>
+
+            <!-- 3 TEAMS ON STAGE PODS: Live active 3 teams competing on the big screen -->
+            <div class="stage-teams-competing-strip" id="stage-teams-competing-strip">
+              <!-- Dynamically populated with 3 podium pods for Team 1, Team 2, Team 3 -->
             </div>
 
             <!-- Centered Question & Options Stage Centerpiece -->
@@ -239,6 +260,12 @@
             <button class="action-btn-clean btn-next-cyan btn-dock-primary" onclick="nextStageQuestion()">
               Next Question →
             </button>
+
+            <!-- Quick Score Increment for the 3 Active Teams on Stage -->
+            <div class="dock-section-label" style="margin-top: 0.6rem;">AWARD POINTS TO ON-STAGE TEAM</div>
+            <div class="dock-team-award-list" id="dock-team-award-buttons">
+              <!-- Dynamically populated with +10 / -5 quick buttons for the 3 teams in active group -->
+            </div>
           </div>
 
           <!-- Navigation Shortcuts -->
