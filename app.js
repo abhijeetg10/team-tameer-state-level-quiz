@@ -95,7 +95,7 @@ const tournamentConfig = {
       subtitle: "34 Teams in 12 Groups (3 Teams per Group)",
       teamsCount: 34,
       advanceCount: 12,
-      status: "ready",
+      status: "active",
       note: "Top qualifying teams advance to Phase 2 Semi Final",
       rounds: [
         { id: 1, name: "Round 1: MCQ", questionsRequired: 68, remark: "Two Questions for one Team" },
@@ -2918,6 +2918,8 @@ function confirmBulkPdfImport() {
 // ==============================================================================
 // 🎲 LIVE TEAM SHUFFLER & 3-TEAM TRIAD GENERATOR ENGINE
 // ==============================================================================
+let currentShuffledTriads = [];
+let isShufflingInProgress = false;
 let isShufflerMandatoryMode = false;
 
 function openTeamShufflerModal(isMandatory = false) {
@@ -3083,65 +3085,72 @@ function startLiveTeamShuffle() {
 
   // Dynamic interval function for organic slot-machine deceleration
   function runShuffleFrame() {
-    const elapsed = Date.now() - startTime;
-    const remainingSeconds = Math.max(0, Math.ceil((totalShuffleDurationMs - elapsed) / 1000));
+    try {
+      const elapsed = Date.now() - startTime;
+      const remainingSeconds = Math.max(0, Math.ceil((totalShuffleDurationMs - elapsed) / 1000));
 
-    if (btnLabel) {
-      btnLabel.innerText = `Randomizing (${remainingSeconds}s)...`;
-    }
-    if (countdownTimer) {
-      countdownTimer.innerText = `${remainingSeconds}s`;
-    }
-    if (progressBar) {
-      const pct = Math.min(100, Math.round((elapsed / totalShuffleDurationMs) * 100));
-      progressBar.style.width = `${pct}%`;
-    }
+      if (btnLabel) {
+        btnLabel.innerText = `Randomizing (${remainingSeconds}s)...`;
+      }
+      if (countdownTimer) {
+        countdownTimer.innerText = `${remainingSeconds}s`;
+      }
+      if (progressBar) {
+        const pct = Math.min(100, Math.round((elapsed / totalShuffleDurationMs) * 100));
+        progressBar.style.width = `${pct}%`;
+      }
 
-    if (elapsed >= totalShuffleDurationMs) {
-      clearInterval(tensionMusicInterval);
+      if (elapsed >= totalShuffleDurationMs) {
+        clearInterval(tensionMusicInterval);
+        finalizeTeamShuffle();
+        return;
+      }
+
+      // Progress 0.0 -> 1.0
+      const progress = elapsed / totalShuffleDurationMs;
+
+      // How many groups should already start locking in towards the last 3.5 seconds?
+      let lockedGroupsThreshold = 0;
+      if (progress > 0.68) {
+        // Stagger lock: Group 1, then Group 2, then 3, up to totalGroups
+        lockedGroupsThreshold = Math.floor(((progress - 0.68) / 0.32) * totalGroups);
+      }
+
+      // Randomize temporary order
+      const tempShuffled = [...activeTeams];
+      for (let i = tempShuffled.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [tempShuffled[i], tempShuffled[j]] = [tempShuffled[j], tempShuffled[i]];
+      }
+
+      // Distribute into 3-team triads
+      currentShuffledTriads = [];
+      for (let g = 0; g < totalGroups; g++) {
+        currentShuffledTriads.push({
+          groupName: `Group ${g + 1}`,
+          teams: tempShuffled.slice(g * 3, g * 3 + 3)
+        });
+      }
+
+      renderShuffledTriadsStage(true, lockedGroupsThreshold);
+
+      // Audio click pitch rises with urgency & heartbeat rhythm
+      try {
+        const tickPitch = 550 + Math.floor(progress * 650) + (Math.random() * 80);
+        playQuizTone(tickPitch, 0, 'shuffle-slot-tick');
+      } catch (err) {}
+
+      // Dynamic next frame delay: Fast (65ms) early on, deceleration near end
+      let nextDelay = 65;
+      if (progress > 0.65) {
+        nextDelay = 75 + Math.pow((progress - 0.65) / 0.35, 2) * 240; // 75ms -> 315ms
+      }
+
+      setTimeout(runShuffleFrame, nextDelay);
+    } catch (e) {
+      console.error("Shuffle frame error:", e);
       finalizeTeamShuffle();
-      return;
     }
-
-    // Progress 0.0 -> 1.0
-    const progress = elapsed / totalShuffleDurationMs;
-
-    // How many groups should already start locking in towards the last 3.5 seconds?
-    let lockedGroupsThreshold = 0;
-    if (progress > 0.68) {
-      // Stagger lock: Group 1, then Group 2, then 3, up to totalGroups
-      lockedGroupsThreshold = Math.floor(((progress - 0.68) / 0.32) * totalGroups);
-    }
-
-    // Randomize temporary order
-    const tempShuffled = [...activeTeams];
-    for (let i = tempShuffled.length - 1; i > 0; i--) {
-      const j = Math.floor(Math.random() * (i + 1));
-      [tempShuffled[i], tempShuffled[j]] = [tempShuffled[j], tempShuffled[i]];
-    }
-
-    // Distribute into 3-team triads
-    currentShuffledTriads = [];
-    for (let g = 0; g < totalGroups; g++) {
-      currentShuffledTriads.push({
-        groupName: `Group ${g + 1}`,
-        teams: tempShuffled.slice(g * 3, g * 3 + 3)
-      });
-    }
-
-    renderShuffledTriadsStage(true, lockedGroupsThreshold);
-
-    // Audio click pitch rises with urgency & heartbeat rhythm
-    const tickPitch = 550 + Math.floor(progress * 650) + (Math.random() * 80);
-    playQuizTone(tickPitch, 0, 'shuffle-slot-tick');
-
-    // Dynamic next frame delay: Fast (65ms) early on, deceleration near end
-    let nextDelay = 65;
-    if (progress > 0.65) {
-      nextDelay = 75 + Math.pow((progress - 0.65) / 0.35, 2) * 240; // 75ms -> 315ms
-    }
-
-    setTimeout(runShuffleFrame, nextDelay);
   }
 
   // Kick off first frame
