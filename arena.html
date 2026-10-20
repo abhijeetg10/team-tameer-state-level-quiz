@@ -96,69 +96,25 @@
       </div>
     </section>
 
-    <!-- 1.4 DEDICATED ON-STAGE GROUP SELECTION SCREEN -->
-    <section id="screen-groups-hub" class="stage-panel-view">
-      <div class="panel-headline-row">
-        <div>
-          <div style="display: flex; align-items: center; gap: 0.8rem;">
-            <h2 class="panel-heading-text" id="groups-hub-title">Phase 1: Choose Group On Stage</h2>
-            <span class="active-ph-badge" id="groups-hub-phase-badge" style="font-size: 0.75rem;">STAGE SELECTION</span>
-          </div>
-          <p class="panel-sub-text" id="groups-hub-subtitle">Choose which 3-team triad group takes the stage next. Their live scores and played status are tracked below.</p>
-        </div>
-        <div style="display: flex; gap: 0.8rem; align-items: center;">
-          <button class="action-btn-clean btn-shuffle-triads" onclick="openTeamShufflerModal()" title="Randomize and create balanced 3-team triads for this phase with live shuffle animation and sound">
-            🎲 Shuffle 3-Team Groups
-          </button>
-          <button class="action-btn-clean" onclick="switchMainScreen('screen-phases')">
-            ← Back to Phases
-          </button>
-          <button class="action-btn-clean btn-reveal-gold" onclick="openRoundsHubForActivePhase()" title="Proceed to launch competition rounds for the active group">
-            Proceed to Rounds →
-          </button>
-        </div>
-      </div>
-
-      <!-- Dedicated Clean Group Triad Cards Grid -->
-      <div class="dedicated-groups-container">
-        <div class="groups-hub-top-bar">
-          <div class="hub-group-info-left">
-            <span class="hub-group-icon">🎭</span>
-            <div>
-              <div class="hub-group-label" style="font-size: 1.05rem;">ALL 12 COMPETITION GROUPS</div>
-              <div class="hub-group-sub">Click any group card to put that group on stage. Groups that have played change color to green with final scores.</div>
-            </div>
-          </div>
-          <div class="hub-stage-actions">
-            <span class="hub-active-stage-pill" id="hub-active-stage-pill">Active: Group 1</span>
-            <button class="action-btn-clean btn-next-group-quick" onclick="advanceToNextGroup()" title="Mark current group done and bring next group on stage">
-              Next Group On Stage →
-            </button>
-          </div>
-        </div>
-
-        <div class="hub-groups-grid" id="hub-group-chips-container">
-          <!-- Dynamically generated with rich cards by app.js -->
-        </div>
-      </div>
-    </section>
-
-    <!-- 1.5 DEDICATED ROUND SELECTION SCREEN (Separate Screen for the Active On-Stage Group) -->
+    <!-- 1.5 DEDICATED ROUND SELECTION SCREEN FOR THE ACTIVE ON-STAGE GROUP -->
     <section id="screen-rounds-hub" class="stage-panel-view">
       <div class="panel-headline-row">
         <div>
           <div style="display: flex; align-items: center; gap: 0.8rem;">
-            <h2 class="panel-heading-text" id="rounds-hub-title">Phase 1: Select Round</h2>
-            <span class="active-ph-badge" id="rounds-hub-phase-badge" style="font-size: 0.75rem;">ACTIVE STAGE</span>
+            <h2 class="panel-heading-text" id="rounds-hub-title">Phase 1: Competition Rounds</h2>
+            <span class="active-ph-badge" id="rounds-hub-phase-badge" style="font-size: 0.75rem;">LIVE STAGE</span>
           </div>
-          <p class="panel-sub-text" id="rounds-hub-subtitle">Choose which round to project onto the auditorium big screen for the active group.</p>
+          <p class="panel-sub-text" id="rounds-hub-subtitle">Groups take the stage one after another. Select a round below or let rounds progress sequentially.</p>
         </div>
         <div style="display: flex; gap: 0.8rem; align-items: center;">
-          <button class="action-btn-clean" onclick="switchMainScreen('screen-groups-hub')">
-            ← Change On-Stage Group
+          <button class="action-btn-clean btn-shuffle-triads" onclick="openTeamShufflerModal()" title="Randomize and create balanced 3-team triads for this phase with live shuffle animation and sound">
+            🎲 Reshuffle Groups
           </button>
-          <button class="action-btn-clean btn-next-group-quick" onclick="advanceToNextGroup()" title="Move to next group and mark this group played">
+          <button class="action-btn-clean btn-next-group-quick" onclick="advanceNextGroupAndStartRounds()" title="Advance to the next 3-team group and start Round 1">
             Next Group On Stage →
+          </button>
+          <button class="action-btn-clean" onclick="switchMainScreen('screen-phases')">
+            ← Phases
           </button>
           <button class="action-btn-clean" onclick="switchMainScreen('screen-leaderboard')">
             Leaderboard →
@@ -166,19 +122,20 @@
         </div>
       </div>
 
-      <!-- Active On-Stage Group Summary & Quick Points Awarding Bar -->
+      <!-- Active On-Stage Group Spotlight & Direct Points Awarding Bar -->
       <div class="rounds-hub-active-group-card">
         <div class="rh-stage-header">
           <div style="display: flex; align-items: center; gap: 0.75rem;">
             <span class="rh-stage-pulse-dot"></span>
             <div>
               <span class="rh-stage-title" id="rh-active-group-label">CURRENTLY ON STAGE: GROUP 1</span>
-              <div class="rh-stage-sub">Award points directly to these teams or launch any of the 4 competition rounds below</div>
+              <div class="rh-stage-sub">Teams compete sequentially through all 4 rounds. Award points directly or launch rounds below.</div>
             </div>
           </div>
-          <div style="display: flex; gap: 0.5rem; align-items: center;">
-            <button class="action-btn-clean" style="font-size: 0.75rem; padding: 0.35rem 0.8rem;" onclick="switchMainScreen('screen-groups-hub')">
-              🔄 Switch Group
+          <div style="display: flex; gap: 0.6rem; align-items: center;">
+            <span class="hub-active-stage-pill" id="hub-active-stage-pill">Group 1 of 12</span>
+            <button class="action-btn-clean btn-next-group-quick" onclick="advanceNextGroupAndStartRounds()" title="Complete current group and bring next group on stage">
+              Bring Next Group →
             </button>
           </div>
         </div>

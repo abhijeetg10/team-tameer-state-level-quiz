@@ -440,8 +440,13 @@ function updateStageActiveGroupDisplay() {
   // 2. Render On-Stage Teams Direct Points Awarding Row in screen-rounds-hub
   const hubAwardRow = document.getElementById('rh-teams-award-row');
   const hubGroupLabel = document.getElementById('rh-active-group-label');
+  const stagePill = document.getElementById('hub-active-stage-pill');
+
   if (hubGroupLabel) {
     hubGroupLabel.innerText = `CURRENTLY ON STAGE: ${groupName.toUpperCase()}`;
+  }
+  if (stagePill) {
+    stagePill.innerText = `● On Stage: ${groupName} of 12`;
   }
 
   if (hubAwardRow) {
@@ -785,12 +790,7 @@ function renderPhasesLaunchDeck() {
 
     let actionButton = "";
     if (isActive) {
-      actionButton = `
-        <div style="display: flex; gap: 0.5rem; width: 100%;">
-          <button class="phase-btn-trigger btn-enter-live-phase" style="flex: 1;" onclick="openGroupsHubForPhase(${p.id})">1. Choose On-Stage Group →</button>
-          <button class="phase-btn-trigger" style="background: rgba(0, 240, 255, 0.15); color: #00f0ff; border: 1px solid rgba(0, 240, 255, 0.4); padding: 0.5rem 0.8rem;" onclick="openRoundsHubForPhase(${p.id})">Rounds</button>
-        </div>
-      `;
+      actionButton = `<button class="phase-btn-trigger btn-enter-live-phase" onclick="openRoundsHubForPhase(${p.id})">Launch Live Competition Stage →</button>`;
     } else if (isCompleted) {
       actionButton = `<button class="phase-btn-trigger" style="background: rgba(16,185,129,0.15); color: #34d399; border: 1px solid rgba(16,185,129,0.3); cursor: pointer;" onclick="openRoundsHubForPhase(${p.id})">Completed Rounds Review</button>`;
     } else if (isLocked) {
