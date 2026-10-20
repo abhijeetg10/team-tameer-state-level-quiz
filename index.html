@@ -1,0 +1,127 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>State-Level GK Quiz Contest 2026</title>
+  <link rel="icon" type="image/png" href="logo.png">
+
+  <!-- Google Fonts: Space Grotesk -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@600;700;800;900&display=swap" rel="stylesheet">
+
+  <!-- Confetti script -->
+  <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.9.4/dist/confetti.browser.min.js"></script>
+
+  <!-- Main Cyber-Gold Stylesheet -->
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+  <!-- Dynamic Cosmic Particle Starfield Canvas (No Scroll) -->
+  <canvas id="poster-canvas"></canvas>
+
+  <!-- Atmospheric Stage Spotlight & Auroras -->
+  <div class="stage-atmospheres">
+    <div class="spotlight-cone"></div>
+    <div class="aurora-orb-left"></div>
+    <div class="aurora-orb-right"></div>
+  </div>
+
+  <!-- Single-Page Zero-Scroll Viewport Shell -->
+  <div class="stage-viewport">
+
+    <!-- 1. Top Header Strip -->
+    <header class="stage-top-strip">
+      <div class="badge-live-pulse">
+        <span class="pulse-core"></span>
+        <span>Maharashtra State Championship</span>
+      </div>
+
+      <div class="district-locations">
+        <span>Official Grand Stage Arena</span>
+      </div>
+
+      <button class="fs-toggle-btn" onclick="toggleFullscreen()" title="Fullscreen Stage Mode">
+        ⛶ Fullscreen Stage
+      </button>
+    </header>
+
+    <!-- 2. Main Center Grand Poster Section -->
+    <main class="stage-center-content">
+      
+      <!-- ===============================================================
+           ✨ SOPHISTICATED NEOMORPHIC LOGO PEDESTAL WITH DUAL ORBITAL RAYS
+           (Replaces harsh rainbow spinning with calming, high-prestige optics)
+           =============================================================== -->
+      <div class="luxury-logo-shrine" title="Team Tameer">
+        <div class="logo-ambient-aura"></div>
+        <div class="orbital-ring-1"></div>
+        <div class="orbital-ring-2"></div>
+        <div class="logo-glass-pedestal">
+          <img src="logo.png" alt="Team Tameer Logo">
+        </div>
+      </div>
+
+      <!-- EXACT CONTEST TITLE -->
+      <div class="contest-title-wrap">
+        <div class="contest-pre-tag">
+          OFFICIAL STATE CHAMPIONSHIP ARENA
+        </div>
+        <h1 class="main-contest-title">
+          State-Level GK Quiz Contest <br>
+          <span class="year-glow-pill">2026</span>
+        </h1>
+        <p class="contest-subline">
+          The Premier Championship of Knowledge, Speed & Precision. 3 Official Knockout Phases and 1 Champion.
+        </p>
+      </div>
+
+      <!-- 3 Flowchart Tournament Phases from PDF Blueprint -->
+      <div class="tour-phases-strip">
+        <div class="phase-pill-box">
+          <span class="ph-num">Phase 01</span>
+          <span class="ph-name">League Round</span>
+          <span class="ph-info">6 Groups • Top 9 Qualify</span>
+        </div>
+        <div class="phase-pill-box">
+          <span class="ph-num">Phase 02</span>
+          <span class="ph-name">Semi Final</span>
+          <span class="ph-info">3 Groups • Top 3 Qualify</span>
+        </div>
+        <div class="phase-pill-box">
+          <span class="ph-num">Phase 03</span>
+          <span class="ph-name">Grand Final</span>
+          <span class="ph-info">Finalists Group • 1 State Winner</span>
+        </div>
+      </div>
+
+      <!-- Start Live Quiz Arena Action -->
+      <div class="launch-arena-row">
+        <button class="btn-grand-launch" onclick="enterQuizArena()">
+          <svg width="26" height="26" viewBox="0 0 24 24" fill="currentColor"><polygon points="5 3 19 12 5 21 5 3"/></svg>
+          <span>Launch Quiz Arena</span>
+        </button>
+      </div>
+
+    </main>
+
+    <!-- 3. Bottom Credit Bar: Software Support by RO Code (Subtle, Classy & Compact) -->
+    <footer class="stage-bottom-footer">
+      <div class="ro-compact-ring" title="RO Code Software Support">
+        <div class="ro-inner-disc">
+          <img src="ROLogo.jpeg" alt="RO Code Logo">
+        </div>
+      </div>
+      <div class="ro-small-text">
+        Software Support by <strong>RO Code</strong>
+      </div>
+    </footer>
+
+  </div>
+
+  <!-- Poster script -->
+  <script src="poster.js"></script>
+</body>
+</html>

@@ -1,0 +1,787 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>State-Level GK Quiz Contest 2026 | Championship Arena</title>
+  <link rel="icon" type="image/png" href="logo.png">
+
+  <!-- Clean Modern Google Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@700;800;900&family=Plus+Jakarta+Sans:wght@500;600;700;800;900&family=Space+Grotesk:wght@600;700;800;900&display=swap" rel="stylesheet">
+
+  <!-- Confetti script -->
+  <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.9.4/dist/confetti.browser.min.js"></script>
+
+  <!-- Arena Stylesheet -->
+  <link rel="stylesheet" href="arena.css">
+</head>
+<body>
+
+  <!-- Ambient Cinematic Stage Glows -->
+  <div class="stage-ambient-fx">
+    <div class="ambient-spotlight"></div>
+    <div class="glow-orb orb-left"></div>
+    <div class="glow-orb orb-right"></div>
+  </div>
+
+  <!-- Streamlined Stage Top Header -->
+  <header class="stage-top-header">
+    <div class="brand-unit">
+      <a href="index.html" class="logo-orbit-ring" title="Back to Poster">
+        <div class="logo-inner-shield">
+          <img src="logo.png" alt="Logo">
+        </div>
+      </a>
+      <div>
+        <h1 class="header-main-title">STATE-LEVEL GK QUIZ CONTEST 2026</h1>
+        <p class="header-sub-title">Championship Stage Broadcast</p>
+      </div>
+    </div>
+
+    <!-- Active Stage Indicator -->
+    <div class="stage-tracker-pill">
+      <span class="active-pulse-bullet"></span>
+      <span id="tracker-phase-text">Phase 1: League Round</span>
+      <span class="tracker-sep">•</span>
+      <span id="tracker-round-text" style="color: var(--cyan);">Awaiting Phase Start</span>
+    </div>
+
+    <!-- Minimal, Clean Top Navigation -->
+    <div class="minimal-nav-group">
+      <button class="minimal-nav-btn active-nav" id="btn-tab-phases" onclick="switchMainScreen('screen-phases')">
+        Phases & Rounds
+      </button>
+      <button class="minimal-nav-btn" id="btn-tab-leaderboard" onclick="switchMainScreen('screen-leaderboard')">
+        Live Leaderboard
+      </button>
+      <button class="minimal-nav-btn" id="btn-tab-analytics" onclick="switchMainScreen('screen-analytics')">
+        Grand Tournament Tree
+      </button>
+      <button class="minimal-nav-btn" id="btn-tab-directory" onclick="switchMainScreen('screen-directory')">
+        Schools Directory
+      </button>
+      <button class="minimal-nav-btn btn-admin-tab" id="btn-tab-admin" onclick="openAdminAccessModal()">
+        🔒 Admin Portal
+      </button>
+      <button class="btn-fullscreen-toggle" onclick="toggleStageFullscreen()" title="Fullscreen Screen">
+        ⛶
+      </button>
+    </div>
+  </header>
+
+  <!-- Main Presentation Shell (100vh Zero Scroll) -->
+  <main class="arena-stage-body">
+
+    <!-- 1. TOURNAMENT PHASES & ROUNDS LAUNCHPAD (Primary Screen On Entry) -->
+    <section id="screen-phases" class="stage-panel-view active-panel">
+      <div class="panel-headline-row">
+        <div>
+          <h2 class="panel-heading-text">Championship Phases Overview</h2>
+          <p class="panel-sub-text">Activate a phase to view its specialized round cards (MCQ, Media Round, Buzzer, Rapid Fire).</p>
+        </div>
+        <div style="display: flex; gap: 0.75rem;">
+          <button class="action-btn-clean btn-shuffle-triads" onclick="openTeamShufflerModal()" title="Randomize and create balanced 3-team triads for this phase with live shuffle animation and sound">
+            🎲 Shuffle & Form 3-Team Groups
+          </button>
+          <button class="action-btn-clean" onclick="openAddSchoolModal()">
+            + Add School
+          </button>
+        </div>
+      </div>
+
+      <div class="phases-cards-deck" id="phases-blueprint-cards">
+        <!-- Rendered by app.js with rounds and activation triggers -->
+      </div>
+    </section>
+
+    <!-- 1.5 DEDICATED ROUND SELECTION CARDS HUB (Psychological Color Coded Round Cards) -->
+    <section id="screen-rounds-hub" class="stage-panel-view">
+      <div class="panel-headline-row">
+        <div>
+          <div style="display: flex; align-items: center; gap: 0.8rem;">
+            <h2 class="panel-heading-text" id="rounds-hub-title">Phase 1: Select Round</h2>
+            <span class="active-ph-badge" id="rounds-hub-phase-badge" style="font-size: 0.75rem;">ACTIVE STAGE</span>
+          </div>
+          <p class="panel-sub-text" id="rounds-hub-subtitle">Choose which round to project onto the auditorium big screen.</p>
+        </div>
+        <div style="display: flex; gap: 0.8rem;">
+          <button class="action-btn-clean btn-shuffle-triads" onclick="openTeamShufflerModal()" title="Randomize and create balanced 3-team triads for this phase with live shuffle animation and sound">
+            🎲 Shuffle 3-Team Groups
+          </button>
+          <button class="action-btn-clean" onclick="switchMainScreen('screen-phases')">
+            ← Back to Phases
+          </button>
+          <button class="action-btn-clean" onclick="switchMainScreen('screen-leaderboard')">
+            Leaderboard →
+          </button>
+        </div>
+      </div>
+
+      <!-- Psychological Round Cards Grid -->
+      <div class="round-cards-interactive-grid" id="round-cards-selection-container">
+        <!-- Dynamically rendered by app.js with rich icons, color codes and launch buttons -->
+      </div>
+    </section>
+
+    <!-- 2. BROADCAST MEDIA & QUESTION ARENA (Pure Immersive 2-Column Stage) -->
+    <section id="screen-round-arena" class="stage-panel-view">
+      
+      <!-- Broadcast Arena Dynamic Stage Lighting Rig -->
+      <div class="stage-lighting-rig" id="stage-lighting-rig">
+        <div class="light-beam beam-left" id="beam-left"></div>
+        <div class="light-beam beam-right" id="beam-right"></div>
+        <div class="light-ambient-glow" id="ambient-stage-glow"></div>
+      </div>
+      
+      <div class="stage-immersive-grid">
+        
+        <!-- Left / Center: Main Question & Options Broadcast Stage -->
+        <div class="stage-main-column">
+          
+          <div class="spotlight-question-card" id="main-question-card-shell">
+            
+            <!-- Stage Header Strip inside Card -->
+            <div class="card-stage-top-strip">
+              <div class="media-format-pill" id="media-format-badge">
+                <span class="format-dot"></span>
+                <span id="format-label-text">MCQ ROUND</span>
+              </div>
+              <div class="live-round-title" id="current-round-title-badge">
+                Round 1 • Question 01
+              </div>
+            </div>
+
+            <!-- Centered Question & Options Stage Centerpiece -->
+            <div class="question-stage-centerpiece">
+              
+              <!-- Dedicated Question Prompt Card (At the Top) -->
+              <div class="question-prompt-card">
+                <div class="question-card-indicator">
+                  <span class="q-badge-bullet"></span>
+                  <span class="q-badge-text">OFFICIAL STAGE QUESTION</span>
+                </div>
+                <div class="question-text-zone">
+                  <h2 class="question-main-font" id="live-question-text">
+                    Loading Question...
+                  </h2>
+                </div>
+              </div>
+
+              <!-- Media Showcase Zone (Dynamically populated with Image, Video, or Audio Lifeline player in Media Round) -->
+              <div class="media-showcase-zone" id="media-container-zone" style="display: none;">
+                <!-- Populated by app.js -->
+              </div>
+
+              <!-- 2x2 High-Impact Options Grid - Directly below -->
+              <div class="options-stage-grid" id="live-options-container">
+                <!-- Populated by app.js -->
+              </div>
+
+            </div>
+
+          </div>
+
+        </div>
+
+        <!-- Right: Dedicated Control & Host Dock (No cutoffs, perfectly visible at all times) -->
+        <aside class="stage-control-dock">
+          
+          <!-- Small Brand Pedestal -->
+          <div class="dock-brand-pod">
+            <div class="mini-tameer-badge" title="Team Tameer GK Quiz Contest 2026">
+              <img src="logo.png" alt="Team Tameer Logo">
+            </div>
+            <div class="dock-brand-name">Team Tameer</div>
+            <div class="dock-brand-tag">GK Quiz 2026</div>
+          </div>
+
+          <!-- Prominent Countdown Timer Unit -->
+          <div class="dock-timer-card">
+            <div class="dock-section-label">ROUND TIMER</div>
+            <div class="circular-countdown-box" id="timer-box-display">
+              <span class="timer-numeric-font" id="live-timer-number">30s</span>
+            </div>
+            <div class="dock-timer-buttons">
+              <button class="action-btn-clean btn-dock-action" id="btn-toggle-timer" onclick="toggleTimerState()">▶ Start Timer</button>
+              <button class="action-btn-clean btn-dock-action" onclick="resetTimer()">↺ Reset</button>
+              <button class="btn-micro-edit btn-dock-full" onclick="openTimerEditModal()" title="Set Custom Timer Duration">
+                ⚙ Set Duration
+              </button>
+            </div>
+          </div>
+
+          <!-- Main Host Question Controls -->
+          <div class="dock-action-cluster">
+            <div class="dock-section-label">STAGE CONTROLS</div>
+            <button class="action-btn-clean btn-check-pick btn-dock-primary" id="btn-check-pick" onclick="checkSelectedOptionOnly()" title="Check if selected option is right or wrong without revealing the correct answer (Useful for buzzer rounds to pass to next team)">
+              ⚡ Check Pick (Pass/Buzz)
+            </button>
+            <button class="action-btn-clean btn-reveal-gold btn-dock-primary" id="btn-reveal-answer-main" onclick="triggerAnswerReveal()" title="Reveal the actual correct answer">
+              ✓ Reveal Answer
+            </button>
+            <button class="action-btn-clean btn-next-cyan btn-dock-primary" onclick="nextStageQuestion()">
+              Next Question →
+            </button>
+          </div>
+
+          <!-- Navigation Shortcuts -->
+          <div class="dock-nav-cluster">
+            <div class="dock-section-label">NAVIGATION & SOUND</div>
+            <button class="action-btn-clean btn-dock-action" id="dock-sfx-toggle-btn" onclick="toggleQuizSoundFX()" title="Toggle Sound Effects & Tension Theme">
+              🔊 Arena Sound: ON
+            </button>
+            <button class="action-btn-clean btn-dock-action" id="dock-fs-toggle-btn" onclick="toggleStageFullscreen()" title="Toggle Fullscreen Arena">
+              ⛶ Fullscreen Arena
+            </button>
+            <button class="action-btn-clean btn-dock-action" onclick="switchMainScreen('screen-leaderboard')">
+              Leaderboard →
+            </button>
+            <button class="action-btn-clean btn-dock-action" onclick="openRoundsHubForActivePhase()">
+              ← Select Rounds
+            </button>
+            <button class="action-btn-clean btn-exit-stage btn-dock-action" onclick="switchMainScreen('screen-phases')">
+              ✕ Exit Stage
+            </button>
+          </div>
+
+        </aside>
+
+      </div>
+
+    </section>
+
+    <!-- 3. COMPACT 10-TEAM FIT LEADERBOARD -->
+    <section id="screen-leaderboard" class="stage-panel-view">
+      <div class="compact-leaderboard-shell">
+        
+        <div class="leaderboard-top-controls">
+          <div>
+            <div style="display: flex; align-items: center; gap: 0.8rem;">
+              <h2 class="panel-heading-text" id="leaderboard-title-h2">Phase 1: League Standings</h2>
+              <span class="active-ph-badge" id="fresh-score-indicator" style="font-size: 0.75rem;">FRESH PHASE SCORE</span>
+            </div>
+            <p class="panel-sub-text">Scores start from 0 in each phase. Historical scores are archived in the Grand Diagram.</p>
+          </div>
+
+          <div style="display: flex; gap: 0.8rem; align-items: center;">
+            <button class="action-btn-clean" onclick="switchMainScreen('screen-analytics')">
+              View Master Diagram →
+            </button>
+            <button class="btn-promote-gold" id="btn-advance-selected" onclick="advanceSelectedSchools()">
+              Qualify Selected to Next Phase (<span id="selected-counter-badge">0</span>) →
+            </button>
+          </div>
+        </div>
+
+        <!-- 10-Team Compact Header -->
+        <div class="compact-table-head">
+          <div>SELECT</div>
+          <div>RANK</div>
+          <div>SCHOOL NAME</div>
+          <div>CURRENT PHASE SCORE</div>
+          <div>PHASE 1</div>
+          <div>PHASE 2</div>
+          <div>PHASE 3</div>
+          <div>EDIT</div>
+          <div>STATUS</div>
+        </div>
+
+        <!-- Compact Re-ordering Container (Fits 10 teams smoothly without scrolling) -->
+        <div class="animated-teams-container" id="animated-leaderboard-list">
+          <!-- Animated rows generated by app.js -->
+        </div>
+
+      </div>
+    </section>
+
+    <!-- 4. GRAND TOURNAMENT TREE & COMPLETE FLOW DIAGRAM OF ALL PHASES -->
+    <section id="screen-analytics" class="stage-panel-view">
+      <div class="panel-headline-row">
+        <div>
+          <h2 class="panel-heading-text">Grand Tournament Progression Diagram</h2>
+          <p class="panel-sub-text">Complete breakdown: League (All 34 Schools in 12 Groups) ➔ Semi-Final ➔ Grand Final ➔ State Champion</p>
+        </div>
+        <div style="display: flex; gap: 0.8rem;">
+          <button class="action-btn-clean" onclick="switchMainScreen('screen-leaderboard')">
+            ← Back to Leaderboard
+          </button>
+        </div>
+      </div>
+
+      <!-- Tournament Tree Diagram Grid (3-Tier Column Progression) -->
+      <div class="tree-diagram-container" id="tournament-tree-canvas">
+        <!-- Rendered by app.js -->
+      </div>
+    </section>
+
+    <!-- 5. PARTICIPATING SCHOOLS DIRECTORY -->
+    <section id="screen-directory" class="stage-panel-view">
+      <div class="panel-headline-row">
+        <div>
+          <h2 class="panel-heading-text">Participating High Schools</h2>
+          <p class="panel-sub-text">Official Registered Institutions Database</p>
+        </div>
+        <button class="action-btn-clean" onclick="openAddSchoolModal()">
+          + Add School
+        </button>
+      </div>
+
+      <div class="clean-directory-grid" id="schools-directory-grid">
+        <!-- Rendered by app.js -->
+      </div>
+    </section>
+
+    <!-- 5. SECURE ADMIN PORTAL & QUESTION BANK MANAGER -->
+    <section id="screen-admin" class="stage-panel-view">
+      <div class="admin-portal-shell">
+        
+        <!-- Admin Header Row -->
+        <div class="admin-top-header">
+          <div>
+            <div class="admin-badge-strip">
+              <span class="admin-badge-dot"></span>
+              <span class="admin-badge-title">SYSTEM CONTROL & QUESTION REPOSITORY</span>
+            </div>
+            <h2 class="panel-heading-text">Admin Management Portal</h2>
+            <p class="panel-sub-text">Authorized Admin: <strong style="color: var(--cyan);" id="admin-user-display">argaikwad24@gmail.com</strong></p>
+          </div>
+          <div style="display: flex; gap: 0.8rem; align-items: center;">
+            <button class="action-btn-clean" onclick="openBulkPdfModal()" style="border-color: rgba(255, 196, 0, 0.4); color: #ffc400;" title="Upload PDF to extract and import questions">
+              📄 Bulk Add PDF
+            </button>
+            <button class="action-btn-clean" onclick="shuffleCurrentQuestions()" title="Shuffle & Randomize Questions for Live Broadcast">
+              🔀 Randomize Stage Pool
+            </button>
+            <button class="action-btn-clean btn-reveal-gold" onclick="openAddQuestionModal()">
+              + Add New Question
+            </button>
+            <button class="action-btn-clean btn-exit-stage" onclick="logoutAdminSession()">
+              🔒 Lock Portal
+            </button>
+          </div>
+        </div>
+
+        <!-- Admin Content Split: Round Filter & Questions Inventory -->
+        <div class="admin-dashboard-layout">
+          
+          <!-- Left: Round Categories -->
+          <div class="admin-rounds-nav-bar" id="admin-rounds-filter-bar">
+            <!-- Rendered by app.js -->
+          </div>
+
+          <!-- Right: Questions Grid List -->
+          <div class="admin-questions-inventory">
+            <div class="admin-inv-topbar">
+              <span id="admin-category-count-label">Showing 0 Questions</span>
+              <span style="font-size: 0.8rem; color: #94a3b8;">* Random question selection enabled during live arena rounds</span>
+            </div>
+            <div class="admin-cards-scroll-grid" id="admin-questions-list-container">
+              <!-- Rendered by app.js -->
+            </div>
+          </div>
+
+        </div>
+
+      </div>
+    </section>
+
+  </main>
+
+  <!-- MODAL: SECURE ADMIN ACCESS / LOGIN -->
+  <div class="modal-backdrop-layer" id="admin-auth-modal">
+    <div class="modal-content-card" style="max-width: 480px;">
+      <div style="display: flex; justify-content: center; margin-bottom: 0.8rem;">
+        <div class="admin-lock-icon-pedestal">
+          <svg width="34" height="34" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect>
+            <path d="M7 11V7a5 5 0 0 1 10 0v4"></path>
+          </svg>
+        </div>
+      </div>
+      <h3 style="font-size: 1.6rem; font-weight: 800; color: #fff; margin-bottom: 0.4rem; text-align: center;">Admin Authorization</h3>
+      <p style="color: #94a3b8; font-size: 0.88rem; margin-bottom: 1.4rem; text-align: center; line-height: 1.5;">
+        Registered Administrator: <br><strong style="color: var(--cyan);">argaikwad24@gmail.com</strong>
+      </p>
+
+      <div style="margin-bottom: 1.2rem;">
+        <label style="display: block; font-size: 0.8rem; font-weight: 700; color: #cbd5e1; margin-bottom: 0.4rem;">Admin Email:</label>
+        <input type="email" id="admin-email-input" class="modal-input-text" placeholder="argaikwad24@gmail.com" value="argaikwad24@gmail.com">
+      </div>
+
+      <div style="margin-bottom: 1.2rem;">
+        <label style="display: block; font-size: 0.8rem; font-weight: 700; color: #cbd5e1; margin-bottom: 0.4rem;">Security Passkey / Password:</label>
+        <input type="password" id="admin-passkey-input" class="modal-input-text" placeholder="Enter secure admin passkey (Default: admin2026)" onkeydown="if(event.key==='Enter') verifyAdminAccess()">
+        <p id="admin-auth-error-msg" style="display: none; font-size: 0.78rem; color: #f87171; margin-top: 0.4rem; font-weight: 700;"></p>
+      </div>
+
+      <div style="display: flex; justify-content: center; gap: 1rem;">
+        <button class="action-btn-clean" onclick="closeAdminAccessModal()">Cancel</button>
+        <button class="action-btn-clean btn-reveal-gold" onclick="verifyAdminAccess()">Unlock Admin Portal</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- MODAL: ADD / EDIT QUESTION -->
+  <div class="modal-backdrop-layer" id="admin-add-question-modal">
+    <div class="modal-content-card" style="max-width: 680px; text-align: left;">
+      <h3 style="font-size: 1.5rem; font-weight: 800; color: #fff; margin-bottom: 0.3rem;" id="question-modal-title">Create Arena Question</h3>
+      <p style="color: #94a3b8; font-size: 0.85rem; margin-bottom: 1.2rem;">Add question text, answer options, and media clues for quiz contestants.</p>
+
+      <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; margin-bottom: 1rem;">
+        <div>
+          <label style="font-size: 0.8rem; font-weight: 700; color: #cbd5e1; display: block; margin-bottom: 0.3rem;">Target Round Category</label>
+          <select id="modal-q-round-select" class="modal-input-text" onchange="toggleMediaFieldsVisibility()">
+            <option value="MCQ">MCQ Round (Pure Text)</option>
+            <option value="Media Round">Media Round (Image / Audio / Video)</option>
+            <option value="Buzzer">Buzzer Round (Fast)</option>
+            <option value="Rapid Fire">Rapid Fire Round</option>
+            <option value="Sequence">Sequence Chronology</option>
+            <option value="Visual Rapid Fire">Visual Rapid Fire Finals</option>
+          </select>
+        </div>
+        <div>
+          <label style="font-size: 0.8rem; font-weight: 700; color: #cbd5e1; display: block; margin-bottom: 0.3rem;">Timer Duration (Seconds)</label>
+          <input type="number" id="modal-q-timer-input" value="30" min="5" max="180" class="modal-input-text">
+        </div>
+      </div>
+
+      <div style="margin-bottom: 1rem;">
+        <label style="font-size: 0.8rem; font-weight: 700; color: #cbd5e1; display: block; margin-bottom: 0.3rem;">Question Text</label>
+        <textarea id="modal-q-text-input" class="modal-input-text" rows="3" placeholder="Enter the official question text here..."></textarea>
+      </div>
+
+      <!-- Media Round specific options -->
+      <div id="modal-media-fields-zone" style="display: none; background: rgba(0, 240, 255, 0.05); border: 1.5px dashed rgba(0, 240, 255, 0.35); border-radius: 14px; padding: 1.1rem; margin-bottom: 1rem;">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.8rem;">
+          <div style="font-size: 0.82rem; font-weight: 800; color: var(--cyan); text-transform: uppercase; letter-spacing: 0.05em;">
+            📸 Media Asset Configurator (Media Round Only)
+          </div>
+          <span style="font-size: 0.72rem; color: #94a3b8;">Browse local files or enter file URL</span>
+        </div>
+
+        <div style="display: grid; grid-template-columns: 140px 1fr; gap: 0.8rem; margin-bottom: 0.8rem;">
+          <div>
+            <label style="font-size: 0.75rem; color: #cbd5e1; display: block; margin-bottom: 0.25rem;">Media Type</label>
+            <select id="modal-q-media-type" class="modal-input-text" onchange="updateMediaInputAcceptance()">
+              <option value="image">Image (Photo/Emblem)</option>
+              <option value="audio">Audio (Speech/Sound)</option>
+              <option value="video">Video (MP4 Clip)</option>
+            </select>
+          </div>
+          <div>
+            <label style="font-size: 0.75rem; color: #cbd5e1; display: block; margin-bottom: 0.25rem;">Option 1: Upload File from Device</label>
+            <input type="file" id="modal-q-file-input" class="modal-input-text" style="padding: 0.35rem 0.6rem; font-size: 0.82rem; cursor: pointer;" accept="image/*" onchange="handleAdminMediaFileUpload(event)">
+          </div>
+        </div>
+
+        <div style="margin-bottom: 0.8rem;">
+          <label style="font-size: 0.75rem; color: #cbd5e1; display: block; margin-bottom: 0.25rem;">Option 2: Media Source Path / URL (Auto-filled on upload or manual)</label>
+          <input type="text" id="modal-q-media-src" class="modal-input-text" placeholder="e.g. logo.png or https://... audio.ogg">
+        </div>
+
+        <!-- Live Media Preview Box -->
+        <div id="modal-media-preview-container" style="display: none; background: rgba(0, 0, 0, 0.4); border: 1px solid rgba(255, 255, 255, 0.1); border-radius: 10px; padding: 0.6rem; margin-bottom: 0.8rem; text-align: center;">
+          <div style="font-size: 0.7rem; font-weight: 800; color: #94a3b8; margin-bottom: 0.4rem; text-transform: uppercase;">Media Preview</div>
+          <div id="modal-media-preview-display" style="display: flex; justify-content: center; align-items: center; max-height: 120px;"></div>
+        </div>
+
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 0.8rem;">
+          <div>
+            <label style="font-size: 0.75rem; color: #cbd5e1; display: block; margin-bottom: 0.2rem;">Format / Badge Label</label>
+            <input type="text" id="modal-q-media-label" class="modal-input-text" placeholder="e.g. HISTORICAL MONUMENT CLUE">
+          </div>
+          <div>
+            <label style="font-size: 0.75rem; color: #cbd5e1; display: block; margin-bottom: 0.2rem;">Audio Title (if audio clue)</label>
+            <input type="text" id="modal-q-audio-title" class="modal-input-text" placeholder="e.g. Historic Speech Archive">
+          </div>
+        </div>
+      </div>
+
+      <!-- 4 Options Grid -->
+      <div style="margin-bottom: 1rem;">
+        <label style="font-size: 0.8rem; font-weight: 700; color: #cbd5e1; display: block; margin-bottom: 0.4rem;">4 Answer Options & Correct Selection</label>
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 0.7rem;">
+          <div class="admin-opt-row">
+            <span class="admin-opt-key">A</span>
+            <input type="text" id="modal-opt-a" class="modal-input-text" placeholder="Option A text">
+          </div>
+          <div class="admin-opt-row">
+            <span class="admin-opt-key">B</span>
+            <input type="text" id="modal-opt-b" class="modal-input-text" placeholder="Option B text">
+          </div>
+          <div class="admin-opt-row">
+            <span class="admin-opt-key">C</span>
+            <input type="text" id="modal-opt-c" class="modal-input-text" placeholder="Option C text">
+          </div>
+          <div class="admin-opt-row">
+            <span class="admin-opt-key">D</span>
+            <input type="text" id="modal-opt-d" class="modal-input-text" placeholder="Option D text">
+          </div>
+        </div>
+      </div>
+
+      <!-- Correct Option Radio Group -->
+      <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 1.4rem; padding-top: 0.4rem; border-top: 1px solid rgba(255,255,255,0.08);">
+        <span style="font-size: 0.85rem; font-weight: 800; color: var(--emerald);">Correct Winning Answer:</span>
+        <div style="display: flex; gap: 1.2rem;">
+          <label style="display: flex; align-items: center; gap: 0.3rem; color: #fff; font-weight: 800; cursor: pointer;">
+            <input type="radio" name="correct-opt-radio" value="A" checked> A
+          </label>
+          <label style="display: flex; align-items: center; gap: 0.3rem; color: #fff; font-weight: 800; cursor: pointer;">
+            <input type="radio" name="correct-opt-radio" value="B"> B
+          </label>
+          <label style="display: flex; align-items: center; gap: 0.3rem; color: #fff; font-weight: 800; cursor: pointer;">
+            <input type="radio" name="correct-opt-radio" value="C"> C
+          </label>
+          <label style="display: flex; align-items: center; gap: 0.3rem; color: #fff; font-weight: 800; cursor: pointer;">
+            <input type="radio" name="correct-opt-radio" value="D"> D
+          </label>
+        </div>
+      </div>
+
+      <div style="display: flex; justify-content: flex-end; gap: 1rem;">
+        <button class="action-btn-clean" onclick="closeAddQuestionModal()">Cancel</button>
+        <button class="action-btn-clean btn-reveal-gold" onclick="saveAdminQuestion()">Save to Question Repository</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Software Support by RO Code Footer -->
+  <footer class="ro-code-footer">
+    <div class="ro-circle-ring" title="RO Code Software Support">
+      <div class="ro-circle-plate">
+        <img src="ROLogo.jpeg" alt="RO Code Logo">
+      </div>
+    </div>
+    <div class="ro-credit-line">
+      Software Support by <strong>RO Code</strong>
+    </div>
+  </footer>
+
+  <!-- MODAL: EDIT TIMER -->
+  <div class="modal-backdrop-layer" id="edit-timer-modal">
+    <div class="modal-content-card" style="max-width: 440px;">
+      <h3 style="font-size: 1.6rem; font-weight: 800; color: #fff; margin-bottom: 0.5rem;">Edit Question Timer</h3>
+      <p style="color: #94a3b8; font-size: 0.9rem; margin-bottom: 1.5rem;">Set countdown duration in seconds:</p>
+      
+      <div style="display: flex; justify-content: center; align-items: center; gap: 0.8rem; margin-bottom: 1.6rem;">
+        <input type="number" id="custom-timer-input" value="30" min="5" max="300" class="modal-input-score">
+        <span style="font-size: 1.2rem; font-weight: 800; color: var(--cyan);">seconds</span>
+      </div>
+
+      <div style="display: flex; justify-content: center; gap: 1rem;">
+        <button class="action-btn-clean" onclick="closeTimerEditModal()">Cancel</button>
+        <button class="action-btn-clean btn-next-cyan" onclick="saveCustomTimer()">Apply</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- MODAL: EDIT SCORE FOR CURRENT ACTIVE PHASE -->
+  <div class="modal-backdrop-layer" id="edit-score-modal">
+    <div class="modal-content-card" style="max-width: 480px;">
+      <h3 style="font-size: 1.6rem; font-weight: 800; color: #fff; margin-bottom: 0.4rem;">Edit Score (<span id="edit-phase-label" style="color: var(--cyan);">Phase 1</span>)</h3>
+      <div style="margin-bottom: 1rem; text-align: left;">
+        <label style="font-size: 0.8rem; font-weight: 700; color: #94a3b8; display: block; margin-bottom: 0.35rem;">School / Team Name:</label>
+        <input type="text" id="custom-school-name-input" placeholder="Select or enter school name" class="modal-input-score" style="width: 100%; text-align: left; padding: 0.6rem 1rem; font-size: 0.95rem;">
+      </div>
+
+      <div style="display: flex; justify-content: center; align-items: center; gap: 0.8rem; margin-bottom: 1.6rem;">
+        <label style="font-size: 0.85rem; font-weight: 700; color: #94a3b8;">Score:</label>
+        <input type="number" id="custom-score-input" value="0" min="0" max="1000" class="modal-input-score">
+        <span style="font-size: 1.2rem; font-weight: 800; color: var(--gold);">PTS</span>
+      </div>
+
+      <div style="display: flex; justify-content: center; gap: 1rem;">
+        <button class="action-btn-clean" onclick="closeScoreEditModal()">Cancel</button>
+        <button class="action-btn-clean btn-reveal-gold" onclick="saveCustomScore()">Update Points</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- MODAL: ADD SCHOOL -->
+  <div class="modal-backdrop-layer" id="add-school-modal">
+    <div class="modal-content-card" style="max-width: 500px;">
+      <h3 style="font-size: 1.6rem; font-weight: 800; color: #fff; margin-bottom: 0.4rem;">Add School / Team</h3>
+      <p style="color: #94a3b8; font-size: 0.9rem; margin-bottom: 1.4rem;">Add a competing institution:</p>
+      
+      <div style="display: flex; flex-direction: column; gap: 1rem; text-align: left; margin-bottom: 1.6rem;">
+        <div>
+          <label style="font-size: 0.8rem; font-weight: 700; color: #cbd5e1; display: block; margin-bottom: 0.3rem;">School Name</label>
+          <input type="text" id="new-school-name-input" placeholder="Enter school name" class="modal-input-text">
+        </div>
+        <div style="grid-template-columns: 1fr 1fr; gap: 1rem; display: grid;">
+          <div>
+            <label style="font-size: 0.8rem; font-weight: 700; color: #cbd5e1; display: block; margin-bottom: 0.3rem;">Group</label>
+            <select id="new-school-group-input" class="modal-input-text">
+              <option value="Group 1">Group 1</option>
+              <option value="Group 2">Group 2</option>
+              <option value="Group 3">Group 3</option>
+              <option value="Group 4">Group 4</option>
+              <option value="Group 5">Group 5</option>
+              <option value="Group 6">Group 6</option>
+              <option value="Group 7">Group 7</option>
+              <option value="Group 8">Group 8</option>
+              <option value="Group 9">Group 9</option>
+              <option value="Group 10">Group 10</option>
+              <option value="Group 11">Group 11</option>
+              <option value="Group 12">Group 12</option>
+            </select>
+          </div>
+          <div>
+            <label style="font-size: 0.8rem; font-weight: 700; color: #cbd5e1; display: block; margin-bottom: 0.3rem;">Phase 1 Score</label>
+            <input type="number" id="new-school-score-input" value="0" class="modal-input-text">
+          </div>
+        </div>
+      </div>
+
+      <div style="display: flex; justify-content: center; gap: 1rem;">
+        <button class="action-btn-clean" onclick="closeAddSchoolModal()">Cancel</button>
+        <button class="action-btn-clean btn-reveal-gold" onclick="saveNewSchool()">Add Team</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- MODAL: PHASE UNLOCKED CELEBRATION -->
+  <div class="modal-backdrop-layer" id="phase-advance-modal">
+    <div class="modal-content-card" style="max-width: 580px;">
+      <div style="display: flex; justify-content: center; margin-bottom: 0.5rem; color: #ffc400;">
+        <svg width="60" height="60" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M6 9H4.5a2.5 2.5 0 0 1 0-5H6"/>
+          <path d="M18 9h1.5a2.5 2.5 0 0 0 0-5H18"/>
+          <path d="M4 22h16"/>
+          <path d="M10 14.66V17c0 .55-.45 1-1 1H7c-.55 0-1-.45-1-1v-2.34"/>
+          <path d="M18 14.66V17c0 .55-.45 1-1 1h-2c-.55 0-1-.45-1-1v-2.34"/>
+          <path d="M6 9a6 6 0 0 0 12 0V4H6v5z"/>
+        </svg>
+      </div>
+      <h3 id="modal-step-title" style="font-size: 2rem; font-weight: 900; color: #fff; margin: 0.6rem 0;">PHASE ACTIVATED!</h3>
+      <p id="modal-step-desc" style="color: #94a3b8; font-size: 1.05rem; line-height: 1.5; margin-bottom: 1.6rem;">
+        Phase unlocked! Scores reset to 0 for this fresh phase. All previous phase scores are preserved in the Grand Diagram.
+      </p>
+      <button class="btn-promote-gold" onclick="startCurrentPhaseRounds()">
+        View & Select Round Cards →
+      </button>
+    </div>
+  </div>
+
+  <!-- MODAL: BULK ADD QUESTIONS FROM PDF -->
+  <div class="modal-backdrop-layer" id="bulk-pdf-modal">
+    <div class="modal-content-card" style="max-width: 720px; text-align: left;">
+      <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.4rem;">
+        <h3 style="font-size: 1.6rem; font-weight: 800; color: #fff;">📄 Bulk Add Questions via PDF</h3>
+        <span style="font-size: 0.76rem; background: rgba(0, 240, 255, 0.12); color: var(--cyan); padding: 0.2rem 0.6rem; border-radius: 8px; font-weight: 800;">PDF AI PARSER</span>
+      </div>
+      <p style="color: #94a3b8; font-size: 0.88rem; margin-bottom: 1.2rem; line-height: 1.4;">
+        Upload a question sheet PDF or exam paper. The system parses all questions, multiple-choice options (A, B, C, D), and answer keys, then bulk imports them into your selected round repository.
+      </p>
+
+      <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; margin-bottom: 1rem;">
+        <div>
+          <label style="font-size: 0.8rem; font-weight: 700; color: #cbd5e1; display: block; margin-bottom: 0.3rem;">Import Into Round</label>
+          <select id="bulk-target-round-select" class="modal-input-text">
+            <option value="MCQ">MCQ Round</option>
+            <option value="Buzzer">Buzzer Round</option>
+            <option value="Rapid Fire">Rapid Fire Round</option>
+            <option value="Media Round">Media Round</option>
+            <option value="Sequence">Sequence Chronology</option>
+            <option value="Visual Rapid Fire">Visual Rapid Fire Finals</option>
+          </select>
+        </div>
+        <div>
+          <label style="font-size: 0.8rem; font-weight: 700; color: #cbd5e1; display: block; margin-bottom: 0.3rem;">Default Timer per Question</label>
+          <input type="number" id="bulk-timer-input" value="30" min="5" max="180" class="modal-input-text">
+        </div>
+      </div>
+
+      <!-- Drag & Drop PDF Dropzone -->
+      <div class="pdf-upload-dropzone" id="pdf-dropzone" onclick="document.getElementById('pdf-file-picker').click()">
+        <input type="file" id="pdf-file-picker" accept=".pdf" style="display: none;" onchange="handleBulkPdfFileSelected(event)">
+        <div style="font-size: 2.2rem; margin-bottom: 0.4rem;">📑</div>
+        <div style="font-size: 0.95rem; font-weight: 800; color: #fff; margin-bottom: 0.2rem;" id="pdf-drop-label">Click or Drag & Drop Question Sheet PDF Here</div>
+        <p style="font-size: 0.78rem; color: #94a3b8;">Supports multi-page question papers, question banks, or study sheets</p>
+      </div>
+
+      <!-- Extracted Questions Preview Bar -->
+      <div id="pdf-parsing-status-box" style="display: none; margin: 1rem 0; padding: 0.8rem 1rem; border-radius: 12px; background: rgba(0, 240, 255, 0.08); border: 1px solid rgba(0, 240, 255, 0.3);">
+        <div style="display: flex; justify-content: space-between; align-items: center;">
+          <span id="pdf-parse-status-text" style="font-weight: 800; font-size: 0.88rem; color: var(--cyan);">Extracting text from PDF...</span>
+          <span id="pdf-detected-count" style="font-family: 'JetBrains Mono', monospace; font-size: 0.85rem; font-weight: 900; color: #fff;">0 Detected</span>
+        </div>
+      </div>
+
+      <!-- Scrollable Preview of parsed questions before confirming -->
+      <div id="pdf-parsed-preview-list" style="display: none; max-height: 200px; overflow-y: auto; margin-bottom: 1.2rem; gap: 0.6rem; flex-direction: column;">
+        <!-- Filled dynamically -->
+      </div>
+
+      <div style="display: flex; justify-content: flex-end; gap: 1rem;">
+        <button class="action-btn-clean" onclick="closeBulkPdfModal()">Cancel</button>
+        <button class="action-btn-clean btn-reveal-gold" id="btn-confirm-pdf-import" onclick="confirmBulkPdfImport()" disabled style="opacity: 0.4; cursor: not-allowed;">
+          Confirm & Import Questions
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- 6. LIVE RANDOM TEAM SHUFFLER & 3-TEAM TRIAD GENERATOR MODAL -->
+  <div class="modal-backdrop-layer" id="team-shuffler-modal">
+    <div class="modal-content-card modal-shuffler-card">
+      <div class="modal-header-strip">
+        <div style="display: flex; align-items: center; gap: 0.8rem;">
+          <div class="shuffler-icon-pulse">🎲</div>
+          <div>
+            <h3 class="modal-h3-title" id="shuffler-phase-title">Phase 1: Team Shuffler & 3-Team Triads</h3>
+            <p class="modal-p-desc" id="shuffler-phase-desc">Randomly form 3-team competition groups with authentic lottery shuffle sound and live visual animation.</p>
+          </div>
+        </div>
+        <button class="modal-close-x" onclick="closeTeamShufflerModal()">✕</button>
+      </div>
+
+      <!-- Controls & Live Lottery Shuffling Dashboard -->
+      <div class="shuffler-controls-bar">
+        <div class="shuffler-stats-capsule">
+          <span class="stat-dot"></span>
+          <span id="shuffler-teams-count">18 Competing Teams</span>
+          <span style="opacity: 0.4;">|</span>
+          <span id="shuffler-groups-count">6 Triad Groups (3 Teams / Group)</span>
+        </div>
+
+        <div style="display: flex; gap: 0.8rem; align-items: center;">
+          <div id="shuffler-countdown-badge" class="shuffler-countdown-badge" style="display: none;">
+            <span class="countdown-pulse-dot"></span>
+            <span id="shuffler-countdown-timer">11s</span>
+          </div>
+          <button class="action-btn-clean btn-shuffle-trigger" id="btn-start-live-shuffle" onclick="startLiveTeamShuffle()">
+            <span id="shuffle-btn-icon">⚡</span>
+            <span id="shuffle-btn-label">Randomize & Form Groups</span>
+          </button>
+          <button class="action-btn-clean btn-reveal-gold" id="btn-apply-triad-groups" onclick="applyShuffledTriadGroups()">
+            ✓ Save & Apply to Phase
+          </button>
+        </div>
+      </div>
+
+      <!-- 11-Second Cinematic Suspense Progress Track -->
+      <div class="shuffler-progress-track" id="shuffler-progress-track">
+        <div class="shuffler-progress-bar" id="shuffler-progress-bar"></div>
+      </div>
+
+      <!-- Live Interactive Visual Display of 3-Team Triads -->
+      <div class="shuffled-triads-stage-grid" id="shuffled-triads-display-grid">
+        <!-- Dynamically rendered triad cards with glowing team slots -->
+      </div>
+    </div>
+  </div>
+
+  <!-- PDF.js CDN for client-side instant PDF parsing -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
+  <script>
+    if (window.pdfjsLib) {
+      window.pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
+    }
+  </script>
+  <script src="app.js"></script>
+</body>
+</html>

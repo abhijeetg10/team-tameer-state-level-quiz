@@ -1,0 +1,595 @@
+:root {
+  --bg-dark: #03050c;
+  --bg-card: rgba(10, 16, 32, 0.85);
+  --border-subtle: rgba(255, 255, 255, 0.08);
+  --cyan: #00f0ff;
+  --blue: #0070f3;
+  --gold: #ffc400;
+  --amber: #ff9100;
+  --emerald: #10b981;
+  --rose: #ff3366;
+  --text-main: #ffffff;
+  --text-sub: #cbd5e1;
+  --text-muted: #94a3b8;
+}
+
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+html, body {
+  width: 100vw;
+  height: 100vh;
+  overflow: hidden; /* STRICT ZERO SCROLL */
+  background: radial-gradient(circle at 50% 40%, #071026 0%, #03050d 55%, #010205 100%);
+  color: var(--text-main);
+  font-family: 'Space Grotesk', system-ui, -apple-system, sans-serif;
+  user-select: none;
+}
+
+/* Background canvas */
+#poster-canvas {
+  position: fixed;
+  inset: 0;
+  width: 100vw;
+  height: 100vh;
+  z-index: 0;
+  pointer-events: none;
+}
+
+/* Cinematic Atmospheric Stage Lighting */
+.stage-atmospheres {
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  z-index: 1;
+  overflow: hidden;
+}
+
+.spotlight-cone {
+  position: absolute;
+  top: -20%;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 90vw;
+  height: 90vh;
+  background: radial-gradient(ellipse at 50% 0%, rgba(0, 240, 255, 0.12) 0%, rgba(255, 196, 0, 0.06) 35%, transparent 70%);
+  filter: blur(70px);
+}
+
+.aurora-orb-left {
+  position: absolute;
+  top: 15%;
+  left: -8%;
+  width: 550px;
+  height: 550px;
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(0, 240, 255, 0.16) 0%, transparent 65%);
+  filter: blur(100px);
+}
+
+.aurora-orb-right {
+  position: absolute;
+  bottom: 10%;
+  right: -8%;
+  width: 550px;
+  height: 550px;
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(255, 145, 0, 0.15) 0%, transparent 65%);
+  filter: blur(100px);
+}
+
+/* Viewport Shell (100% Fit On Big Screen / Zero Scroll) */
+.stage-viewport {
+  position: relative;
+  z-index: 10;
+  width: 100vw;
+  height: 100vh;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  align-items: center;
+  padding: 1.5rem 3.5rem 1.2rem;
+}
+
+/* 1. Top Header Strip */
+.stage-top-strip {
+  width: 100%;
+  max-width: 1720px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.badge-live-pulse {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0.45rem 1.4rem;
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid rgba(0, 240, 255, 0.3);
+  border-radius: 9999px;
+  font-size: 0.82rem;
+  font-weight: 800;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--cyan);
+  box-shadow: 0 0 25px rgba(0, 240, 255, 0.25);
+  backdrop-filter: blur(15px);
+}
+
+.pulse-core {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: #ff3366;
+  box-shadow: 0 0 12px #ff3366;
+  animation: dotPulse 1.2s infinite;
+}
+
+@keyframes dotPulse {
+  0%, 100% { transform: scale(1); opacity: 0.8; }
+  50% { transform: scale(1.4); opacity: 1; box-shadow: 0 0 20px #ff3366; }
+}
+
+.district-locations {
+  font-size: 0.95rem;
+  font-weight: 800;
+  letter-spacing: 0.15em;
+  color: var(--text-muted);
+  text-transform: uppercase;
+}
+
+.district-locations span {
+  color: #ffffff;
+}
+
+.fs-toggle-btn {
+  background: rgba(255, 255, 255, 0.06);
+  border: 1px solid rgba(255, 255, 255, 0.18);
+  color: #fff;
+  font-family: inherit;
+  font-size: 0.85rem;
+  font-weight: 700;
+  padding: 0.5rem 1.15rem;
+  border-radius: 12px;
+  cursor: pointer;
+  transition: all 0.25s ease;
+  backdrop-filter: blur(10px);
+}
+
+.fs-toggle-btn:hover {
+  background: rgba(255, 255, 255, 0.15);
+  border-color: var(--cyan);
+  box-shadow: 0 0 20px rgba(0, 240, 255, 0.35);
+  transform: translateY(-1px);
+}
+
+/* 2. Main Center Grand Poster Section */
+.stage-center-content {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  max-width: 1280px;
+  margin: auto 0;
+  gap: 1.3rem;
+}
+
+/* ==========================================================================
+   ✨ SOPHISTICATED NEOMORPHIC LOGO PEDESTAL WITH DUAL ORBITAL RAYS
+   (Replaces harsh rainbow spinning circle with elegant, calming halo)
+   ========================================================================== */
+.luxury-logo-shrine {
+  position: relative;
+  width: 240px;
+  height: 240px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* Soft ambient breathing background glow */
+.logo-ambient-aura {
+  position: absolute;
+  inset: -18px;
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(0, 240, 255, 0.4) 0%, rgba(0, 112, 243, 0.25) 50%, transparent 70%);
+  filter: blur(25px);
+  animation: auraBreath 4s ease-in-out infinite alternate;
+  z-index: 1;
+}
+
+@keyframes auraBreath {
+  0% { transform: scale(0.92); opacity: 0.5; }
+  100% { transform: scale(1.08); opacity: 0.9; filter: blur(30px); }
+}
+
+/* Outer Orbital Gyroscope Ring 1 (Cyan) */
+.orbital-ring-1 {
+  position: absolute;
+  inset: -12px;
+  border-radius: 50%;
+  border: 2px solid transparent;
+  border-top-color: var(--cyan);
+  border-right-color: rgba(0, 240, 255, 0.4);
+  animation: gyroSpinClockwise 9s linear infinite;
+  z-index: 2;
+  filter: drop-shadow(0 0 12px rgba(0, 240, 255, 0.7));
+}
+
+/* Inner Orbital Gyroscope Ring 2 (Amber Gold) */
+.orbital-ring-2 {
+  position: absolute;
+  inset: -4px;
+  border-radius: 50%;
+  border: 2px solid transparent;
+  border-bottom-color: var(--gold);
+  border-left-color: rgba(255, 196, 0, 0.4);
+  animation: gyroSpinCounter 7s linear infinite;
+  z-index: 2;
+  filter: drop-shadow(0 0 12px rgba(255, 196, 0, 0.7));
+}
+
+@keyframes gyroSpinClockwise {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+@keyframes gyroSpinCounter {
+  0% { transform: rotate(360deg); }
+  100% { transform: rotate(0deg); }
+}
+
+/* Central Glass Pedestal for Logo */
+.logo-glass-pedestal {
+  position: relative;
+  z-index: 3;
+  width: 220px;
+  height: 220px;
+  border-radius: 50%;
+  background: radial-gradient(circle at 35% 35%, #0e172e 0%, #060a16 75%, #02040a 100%);
+  border: 2px solid rgba(255, 255, 255, 0.22);
+  box-shadow: 
+    0 18px 45px rgba(0, 0, 0, 0.9),
+    inset 0 2px 8px rgba(255, 255, 255, 0.35),
+    inset 0 -8px 20px rgba(0, 0, 0, 0.85);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+  transition: transform 0.3s ease;
+}
+
+.logo-glass-pedestal:hover {
+  transform: scale(1.04);
+}
+
+.logo-glass-pedestal img {
+  width: 86%;
+  height: 86%;
+  object-fit: contain;
+  filter: drop-shadow(0 8px 20px rgba(0, 0, 0, 0.85));
+  animation: gentleFloating 4s ease-in-out infinite alternate;
+}
+
+@keyframes gentleFloating {
+  0% { transform: translateY(-2px) scale(0.98); }
+  100% { transform: translateY(2px) scale(1.02); }
+}
+
+/* ==========================================================================
+   🎙️ AUDIO SPEAKING LIFELINE THEME (Ecosystem Soundwave & Pulse Wave)
+   ========================================================================== */
+.audio-lifeline-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  position: relative;
+  width: 100%;
+  max-width: 480px;
+  margin: -0.2rem auto 0;
+  gap: 0.35rem;
+}
+
+.lifeline-glow-beam {
+  position: absolute;
+  top: 50%;
+  left: 10%;
+  right: 10%;
+  height: 2px;
+  background: radial-gradient(circle, rgba(0, 240, 255, 0.8) 0%, rgba(0, 112, 243, 0.4) 50%, transparent 100%);
+  filter: blur(4px);
+  z-index: 1;
+}
+
+/* Equalizer Speaking Soundwave Bars */
+.lifeline-soundwave-bars {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  height: 28px;
+  position: relative;
+  z-index: 2;
+}
+
+.wave-bar {
+  width: 4px;
+  height: 8px;
+  background: linear-gradient(180deg, #00f0ff 0%, #0070f3 100%);
+  border-radius: 9999px;
+  box-shadow: 0 0 10px rgba(0, 240, 255, 0.7);
+  animation: audioBarSpeak 1.2s ease-in-out infinite alternate;
+}
+
+/* Natural Voice Modulation Staggering */
+.wb-1  { animation-delay: 0.1s;  height: 6px; }
+.wb-2  { animation-delay: 0.4s;  height: 12px; }
+.wb-3  { animation-delay: 0.25s; height: 18px; }
+.wb-4  { animation-delay: 0.6s;  height: 9px; }
+.wb-5  { animation-delay: 0.15s; height: 22px; }
+.wb-6  { animation-delay: 0.7s;  height: 14px; }
+.wb-7  { animation-delay: 0.35s; height: 26px; }
+.wb-8  { animation-delay: 0.8s;  height: 16px; }
+.wb-9  { animation-delay: 0.2s;  height: 24px; }
+.wb-10 { animation-delay: 0.5s;  height: 28px; }
+.wb-11 { animation-delay: 0.3s;  height: 28px; }
+.wb-12 { animation-delay: 0.65s; height: 22px; }
+.wb-13 { animation-delay: 0.1s;  height: 25px; }
+.wb-14 { animation-delay: 0.75s; height: 15px; }
+.wb-15 { animation-delay: 0.4s;  height: 20px; }
+.wb-16 { animation-delay: 0.2s;  height: 12px; }
+.wb-17 { animation-delay: 0.55s; height: 19px; }
+.wb-18 { animation-delay: 0.85s; height: 8px; }
+.wb-19 { animation-delay: 0.3s;  height: 14px; }
+.wb-20 { animation-delay: 0.5s;  height: 6px; }
+
+@keyframes audioBarSpeak {
+  0% { transform: scaleY(0.35); opacity: 0.6; }
+  50% { transform: scaleY(1.4); opacity: 1; }
+  100% { transform: scaleY(0.5); opacity: 0.75; }
+}
+
+/* Cardiac & Audio Pulse Line */
+.lifeline-pulse-heartbeat {
+  width: 100%;
+  max-width: 440px;
+  height: 22px;
+  position: relative;
+  z-index: 2;
+  overflow: hidden;
+}
+
+.ecg-lifeline-svg {
+  width: 100%;
+  height: 100%;
+}
+
+.ecg-track-back {
+  fill: none;
+  stroke: rgba(0, 240, 255, 0.18);
+  stroke-width: 1.5;
+}
+
+.ecg-track-pulse {
+  fill: none;
+  stroke: #00f0ff;
+  stroke-width: 2.2;
+  stroke-dasharray: 80 420;
+  stroke-dashoffset: 500;
+  animation: ecgScan 2.4s linear infinite;
+  filter: drop-shadow(0 0 8px #00f0ff);
+}
+
+@keyframes ecgScan {
+  0% { stroke-dashoffset: 500; }
+  100% { stroke-dashoffset: -500; }
+}
+
+/* EXACT CONTEST TITLE */
+.contest-title-wrap {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.4rem;
+}
+
+.contest-pre-tag {
+  font-size: 1rem;
+  font-weight: 800;
+  letter-spacing: 0.25em;
+  text-transform: uppercase;
+  color: var(--cyan);
+  text-shadow: 0 0 20px rgba(0, 240, 255, 0.6);
+}
+
+.main-contest-title {
+  font-size: clamp(2.8rem, 5.8vw, 4.8rem);
+  font-weight: 900;
+  line-height: 1.05;
+  letter-spacing: -0.02em;
+  text-transform: uppercase;
+  background: linear-gradient(180deg, #ffffff 15%, #e2e8f0 60%, #94a3b8 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  text-shadow: 0 10px 40px rgba(0, 0, 0, 0.9);
+}
+
+.year-glow-pill {
+  background: linear-gradient(135deg, #fff7ed 0%, #ffc400 40%, #ff9100 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  display: inline-block;
+  filter: drop-shadow(0 0 35px rgba(255, 196, 0, 0.65));
+}
+
+.contest-subline {
+  font-size: clamp(1.1rem, 1.7vw, 1.35rem);
+  color: var(--text-sub);
+  max-width: 860px;
+  line-height: 1.5;
+  font-weight: 600;
+  margin-top: 0.15rem;
+}
+
+/* 3 Phase Tour Pillars */
+.tour-phases-strip {
+  display: flex;
+  align-items: center;
+  gap: 1.4rem;
+  margin-top: 0.3rem;
+}
+
+.phase-pill-box {
+  background: rgba(15, 23, 42, 0.65);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 18px;
+  padding: 0.85rem 1.7rem;
+  backdrop-filter: blur(20px);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  min-width: 200px;
+  position: relative;
+  overflow: hidden;
+  box-shadow: 0 12px 35px rgba(0, 0, 0, 0.5);
+  transition: all 0.3s ease;
+}
+
+.phase-pill-box:hover {
+  transform: translateY(-2px);
+  border-color: rgba(0, 240, 255, 0.4);
+}
+
+.phase-pill-box::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 2px;
+  background: linear-gradient(90deg, #00f0ff, #0070f3, #ffc400);
+}
+
+.ph-num {
+  font-size: 0.75rem;
+  font-weight: 800;
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+  color: var(--cyan);
+}
+
+.ph-name {
+  font-size: 1.15rem;
+  font-weight: 800;
+  color: #ffffff;
+  margin-top: 0.15rem;
+}
+
+.ph-info {
+  font-size: 0.78rem;
+  color: var(--text-muted);
+  margin-top: 0.2rem;
+  font-weight: 600;
+}
+
+/* Launch Live Stage Arena Button */
+.launch-arena-row {
+  margin-top: 0.4rem;
+}
+
+.btn-grand-launch {
+  background: linear-gradient(135deg, #0070f3 0%, #00f0ff 60%, #ffc400 100%);
+  color: #020306;
+  font-family: inherit;
+  font-size: 1.25rem;
+  font-weight: 900;
+  padding: 1.05rem 3rem;
+  border-radius: 20px;
+  border: none;
+  cursor: pointer;
+  box-shadow: 0 0 45px rgba(0, 240, 255, 0.5);
+  display: inline-flex;
+  align-items: center;
+  gap: 0.8rem;
+  letter-spacing: 0.02em;
+  transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.btn-grand-launch:hover {
+  transform: translateY(-3px) scale(1.04);
+  box-shadow: 0 0 60px rgba(0, 240, 255, 0.75);
+}
+
+/* 3. Bottom Footer (RO Code Software Credit - Subtle & Classy) */
+.stage-bottom-footer {
+  width: 100%;
+  max-width: 1720px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.9rem;
+  padding-top: 0.7rem;
+  border-top: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+/* Compact RO Glow Node (Soft Ambient Pulses, No harsh spinning colors) */
+.ro-compact-ring {
+  position: relative;
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: #040814;
+  border: 1.5px solid rgba(0, 240, 255, 0.4);
+  box-shadow: 0 0 14px rgba(0, 240, 255, 0.3);
+}
+
+.ro-compact-ring::after {
+  content: '';
+  position: absolute;
+  inset: -4px;
+  border-radius: 50%;
+  border: 1px solid rgba(255, 196, 0, 0.3);
+  animation: gyroSpinClockwise 12s linear infinite;
+}
+
+.ro-inner-disc {
+  position: relative;
+  z-index: 2;
+  width: 100%;
+  height: 100%;
+  border-radius: 50%;
+  overflow: hidden;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.ro-inner-disc img {
+  width: 90%;
+  height: 90%;
+  object-fit: cover;
+  border-radius: 50%;
+}
+
+.ro-small-text {
+  font-size: 0.85rem;
+  font-weight: 700;
+  color: var(--text-muted);
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.ro-small-text strong {
+  background: linear-gradient(135deg, #00f0ff, #ffc400);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  font-weight: 900;
+  font-size: 0.95rem;
+}
