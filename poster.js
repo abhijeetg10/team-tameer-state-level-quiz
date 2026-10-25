@@ -104,15 +104,60 @@ function enterQuizArena() {
   }, 120);
 }
 
+let isLandingAudioPlaying = false;
+
+function toggleLandingAudio() {
+  const audio = document.getElementById('landing-bg-audio');
+  const icon = document.getElementById('landing-bgm-icon');
+  const text = document.getElementById('landing-bgm-text');
+  if (!audio) return;
+
+  if (audio.paused) {
+    audio.play().then(() => {
+      isLandingAudioPlaying = true;
+      if (icon) icon.innerText = '🔊';
+      if (text) text.innerText = 'Music: ON';
+    }).catch(e => console.log('Audio autoplay prevented:', e));
+  } else {
+    audio.pause();
+    isLandingAudioPlaying = false;
+    if (icon) icon.innerText = '🔇';
+    if (text) text.innerText = 'Music: MUTED';
+  }
+}
+
 document.addEventListener('DOMContentLoaded', () => {
   new CosmicPosterCanvas('poster-canvas');
+
+  // Attempt auto-play on first user interaction (click, keypress, etc.)
+  const audio = document.getElementById('landing-bg-audio');
+  const startAudioOnInteraction = () => {
+    if (audio && audio.paused) {
+      audio.volume = 0.65;
+      audio.play().then(() => {
+        isLandingAudioPlaying = true;
+        const icon = document.getElementById('landing-bgm-icon');
+        const text = document.getElementById('landing-bgm-text');
+        if (icon) icon.innerText = '🔊';
+        if (text) text.innerText = 'Music: ON';
+      }).catch(() => {});
+    }
+    window.removeEventListener('click', startAudioOnInteraction);
+    window.removeEventListener('keydown', startAudioOnInteraction);
+  };
+
+  window.addEventListener('click', startAudioOnInteraction, { once: true });
+  window.addEventListener('keydown', startAudioOnInteraction, { once: true });
 
   // Hotkeys for live stage moderator
   window.addEventListener('keydown', (e) => {
     if (e.key === 'f' || e.key === 'F') {
       toggleFullscreen();
     }
-    if (e.key === 'Enter' || e.key === ' ') {
+    if (e.key === 'm' || e.key === 'M') {
+      toggleLandingAudio();
+    }
+    if (e.key === 'Enter') {
       enterQuizArena();
     }
   });

@@ -29,7 +29,7 @@
   <!-- Streamlined Stage Top Header -->
   <header class="stage-top-header">
     <div class="brand-unit">
-      <a href="index.html" class="logo-orbit-ring" title="Back to Poster">
+      <a href="index.html" class="logo-orbit-ring" id="btn-nav-universal-back" onclick="navigateBack(); return false;" title="Back to Previous Screen">
         <div class="logo-inner-shield">
           <img src="logo.png" alt="Logo">
         </div>
@@ -62,8 +62,14 @@
       <button class="minimal-nav-btn" id="btn-tab-directory" onclick="switchMainScreen('screen-directory')">
         Schools Directory
       </button>
+      <button class="minimal-nav-btn btn-tiebreaker-tab" id="btn-tab-tiebreaker" onclick="openTieBreakerModal()" title="Play Sudden-Death Tie Breaker Buzzer Round between tied teams" style="border-color: rgba(239, 68, 68, 0.5); color: #fca5a5; background: rgba(239, 68, 68, 0.08);">
+        ⚡ Tie Breaker
+      </button>
       <button class="minimal-nav-btn btn-admin-tab" id="btn-tab-admin" onclick="openAdminAccessModal()">
         🔒 Admin Portal
+      </button>
+      <button class="minimal-nav-btn btn-reset-tournament-top" id="btn-tab-reset" onclick="openResetTournamentModal()" title="Reset all scores, stages and start fresh from Phase 1">
+        ↺ Reset Tournament
       </button>
       <button class="btn-fullscreen-toggle" onclick="toggleStageFullscreen()" title="Fullscreen Screen">
         ⛶
@@ -82,6 +88,9 @@
           <p class="panel-sub-text">Activate a phase to view its specialized round cards (MCQ, Media Round, Buzzer, Rapid Fire).</p>
         </div>
         <div style="display: flex; gap: 0.75rem;">
+          <button class="action-btn-clean" onclick="openTieBreakerModal()" style="border-color: rgba(239, 68, 68, 0.45); color: #fca5a5; background: rgba(239, 68, 68, 0.08);" title="Launch Sudden-Death Buzzer Tie Breaker for tied teams">
+            ⚡ Play Tie Breaker
+          </button>
           <button class="action-btn-clean btn-shuffle-triads" onclick="openTeamShufflerModal()" title="Randomize and create balanced 3-team triads for this phase with live shuffle animation and sound">
             🎲 Shuffle & Form 3-Team Groups
           </button>
@@ -107,6 +116,9 @@
           <p class="panel-sub-text" id="rounds-hub-subtitle">Groups take the stage one after another. Select a round below or let rounds progress sequentially.</p>
         </div>
         <div style="display: flex; gap: 0.8rem; align-items: center;">
+          <button class="action-btn-clean" onclick="openTieBreakerModal()" style="border-color: rgba(239, 68, 68, 0.45); color: #fca5a5; background: rgba(239, 68, 68, 0.08);" title="Launch Sudden-Death Buzzer Tie Breaker for tied teams">
+            ⚡ Play Tie Breaker
+          </button>
           <button class="action-btn-clean btn-shuffle-triads" onclick="openTeamShufflerModal()" title="Randomize and create balanced 3-team triads for this phase with live shuffle animation and sound">
             🎲 Reshuffle Groups
           </button>
@@ -132,7 +144,14 @@
               <div class="rh-stage-sub">Teams compete sequentially through all 4 rounds. Award points directly or launch rounds below.</div>
             </div>
           </div>
-          <div style="display: flex; gap: 0.6rem; align-items: center;">
+          <div style="display: flex; gap: 0.6rem; align-items: center; flex-wrap: wrap;">
+            <!-- Instant Group Switcher -->
+            <div style="display: flex; align-items: center; gap: 0.4rem; background: rgba(0,0,0,0.3); padding: 0.25rem 0.6rem; border-radius: 8px; border: 1px solid rgba(255,255,255,0.12);">
+              <span style="font-size: 0.72rem; color: #94a3b8; font-weight: 700;">Switch Group:</span>
+              <select id="rh-group-dropdown-selector" class="stage-group-select" onchange="selectHubGroup(this.value)" style="font-size: 0.76rem; padding: 0.25rem 0.5rem; min-width: 130px;">
+                <!-- Populated dynamically -->
+              </select>
+            </div>
             <span class="hub-active-stage-pill" id="hub-active-stage-pill">Group 1 of 12</span>
             <button class="action-btn-clean btn-next-group-quick" onclick="advanceNextGroupAndStartRounds()" title="Complete current group and bring next group on stage">
               Bring Next Group →
@@ -152,6 +171,55 @@
       </div>
     </section>
 
+    <!-- 1.8 CINEMATIC ON-STAGE FACE-OFF & ROUND INTRO SCREEN -->
+    <section id="screen-round-intro" class="stage-panel-view">
+      <div class="round-intro-cinematic-shell">
+        
+        <!-- Top Animated Spotlight Badge -->
+        <div class="round-intro-top-banner">
+          <div class="intro-round-pulsing-tag" id="intro-round-pill">
+            <span class="intro-dot-glow"></span>
+            <span id="intro-round-name-tag">MCQ ROUND</span>
+          </div>
+          <h1 class="intro-headline-title" id="intro-round-title">ROUND 1: MULTIPLE CHOICE ARENA</h1>
+          <p class="intro-headline-sub" id="intro-round-subtitle">Competing 3-Team Triad On Stage Face-off</p>
+        </div>
+
+        <!-- VS Triad Matchup Podium Cards Grid -->
+        <div class="intro-triad-matchup-grid" id="intro-triad-matchup-grid">
+          <!-- Dynamically populated with the 3 competing teams on stage -->
+        </div>
+
+        <!-- Round Specs & Start Action Bar -->
+        <div class="intro-specs-dock">
+          <div class="intro-specs-items">
+            <div class="intro-spec-chip">
+              <span class="spec-label">ACTIVE TRIAD</span>
+              <span class="spec-val" id="intro-spec-group">Group 1</span>
+            </div>
+            <div class="intro-spec-chip">
+              <span class="spec-label">SCORING FORMAT</span>
+              <span class="spec-val" id="intro-spec-rules">+10 Correct / Standard Time</span>
+            </div>
+            <div class="intro-spec-chip">
+              <span class="spec-label">COMPETITION MODE</span>
+              <span class="spec-val" id="intro-spec-mode">LIVE STAGE BROADCAST</span>
+            </div>
+          </div>
+
+          <div style="display: flex; gap: 1rem; align-items: center;">
+            <button class="action-btn-clean" onclick="openRoundsHubForActivePhase()" style="padding: 0.85rem 1.6rem;">
+              ← Back to Rounds Hub
+            </button>
+            <button class="action-btn-clean btn-reveal-gold intro-start-round-btn" id="btn-start-live-questions" onclick="beginLiveQuestionsOnStage()">
+              <span class="btn-icon-pulse">⚡</span> Start Round & Show Questions →
+            </button>
+          </div>
+        </div>
+
+      </div>
+    </section>
+
     <!-- 2. BROADCAST MEDIA & QUESTION ARENA (Pure Immersive 2-Column Stage) -->
     <section id="screen-round-arena" class="stage-panel-view">
       
@@ -160,6 +228,47 @@
         <div class="light-beam beam-left" id="beam-left"></div>
         <div class="light-beam beam-right" id="beam-right"></div>
         <div class="light-ambient-glow" id="ambient-stage-glow"></div>
+      </div>
+
+      <!-- Cinematic Broadcast Question Change Transition Overlay -->
+      <div class="stage-transition-overlay" id="question-transition-overlay">
+        <!-- Question change animation audio track -->
+        <audio id="question-change-audio" src="public/Audio/Question change animation.mp3" preload="auto"></audio>
+
+        <!-- Cross-Stage Dual Laser Beams -->
+        <div class="transition-light-beam beam-diag-1"></div>
+        <div class="transition-light-beam beam-diag-2"></div>
+        <div class="transition-spotlight-flares"></div>
+
+        <div class="transition-logo-container">
+          <!-- Orbital Cosmic Aura & Stargate Rings -->
+          <div class="hologram-orbital-ring ring-outer"></div>
+          <div class="hologram-orbital-ring ring-middle"></div>
+          <div class="hologram-orbital-ring ring-inner"></div>
+
+          <!-- Central 3D Floating Emblem with Hologram Projection Rays -->
+          <div class="transition-logo-coin" id="transition-logo-coin">
+            <div class="coin-face coin-front">
+              <img src="logo.png" alt="Team Tameer Logo" class="coin-logo-img">
+              <div class="coin-hologram-glare"></div>
+            </div>
+            <div class="coin-face coin-back">
+              <img src="logo.png" alt="Team Tameer Logo" class="coin-logo-img">
+              <div class="coin-hologram-glare"></div>
+            </div>
+          </div>
+
+          <!-- Pulsing Sonic Energy Rings -->
+          <div class="transition-energy-ring ring-1"></div>
+          <div class="transition-energy-ring ring-2"></div>
+          <div class="transition-energy-ring ring-3"></div>
+
+          <!-- Cinematic Broadcast Lower-Third Badge -->
+          <div class="transition-broadcast-badge-wrap">
+            <span class="transition-championship-tag">STATE LEVEL GK QUIZ 2026</span>
+            <div class="transition-pulse-caption" id="transition-pulse-caption">NEXT QUESTION</div>
+          </div>
+        </div>
       </div>
       
       <div class="stage-immersive-grid">
@@ -172,6 +281,9 @@
             <!-- Stage Header Strip inside Card with Active 3-Team Triad Details -->
             <div class="card-stage-top-strip">
               <div style="display: flex; align-items: center; gap: 0.6rem;">
+                <button class="action-btn-clean" onclick="openRoundsHubForActivePhase()" title="Return to Rounds Selection Hub" style="padding: 0.25rem 0.65rem; font-size: 0.74rem; font-weight: 800; border-radius: 8px; background: rgba(0,0,0,0.45); border-color: rgba(255,255,255,0.18);">
+                  ← Hub
+                </button>
                 <div class="media-format-pill" id="media-format-badge">
                   <span class="format-dot"></span>
                   <span id="format-label-text">MCQ ROUND</span>
@@ -188,19 +300,20 @@
               </div>
             </div>
 
-            <!-- 3 TEAMS ON STAGE PODS: Live active 3 teams competing on the big screen -->
-            <div class="stage-teams-competing-strip" id="stage-teams-competing-strip">
-              <!-- Dynamically populated with 3 podium pods for Team 1, Team 2, Team 3 -->
-            </div>
-
             <!-- Centered Question & Options Stage Centerpiece -->
             <div class="question-stage-centerpiece">
               
               <!-- Dedicated Question Prompt Card (At the Top) -->
               <div class="question-prompt-card">
-                <div class="question-card-indicator">
-                  <span class="q-badge-bullet"></span>
-                  <span class="q-badge-text">OFFICIAL STAGE QUESTION</span>
+                <div class="question-card-indicator-row">
+                  <div class="question-card-indicator">
+                    <span class="q-badge-bullet"></span>
+                    <span class="q-badge-text" id="live-question-badge-text">OFFICIAL STAGE QUESTION</span>
+                  </div>
+                  <!-- Active Turn School Highlight Badge -->
+                  <div class="live-target-school-badge" id="live-target-school-badge" title="Current school answering this question">
+                    🎯 Direct Question: <span id="target-school-name" class="target-school-strong">School 1</span> <span id="target-school-qcount" class="target-school-counter">(Q 1 of 2)</span>
+                  </div>
                 </div>
                 <div class="question-text-zone">
                   <h2 class="question-main-font" id="live-question-text">
@@ -214,11 +327,242 @@
                 <!-- Populated by app.js -->
               </div>
 
-              <!-- 2x2 High-Impact Options Grid - Directly below -->
+              <!-- 2x2 High-Impact Options Grid (For MCQ and rounds with options) -->
               <div class="options-stage-grid" id="live-options-container">
                 <!-- Populated by app.js -->
               </div>
 
+              <!-- Interactive Chronological Sequence Round Stage Card -->
+              <div class="sequence-stage-card" id="sequence-stage-card" style="display: none;">
+                <!-- Step 1: Picking Mode (Candidate choices) -->
+                <div class="sequence-picking-view" id="sequence-picking-view">
+                  <!-- Top Selected Sequence Slot Tray -->
+                  <div class="seq-selected-tray-wrap">
+                    <div class="seq-tray-title">YOUR SEQUENCE:</div>
+                    <div class="seq-selected-chips-row" id="seq-selected-chips-row">
+                      <!-- Rendered chips as user selects items -->
+                    </div>
+                  </div>
+
+                  <!-- 4 Clickable Options in Question Order -->
+                  <div class="seq-options-vertical-list" id="seq-options-vertical-list">
+                    <!-- 4 full-width sequence options -->
+                  </div>
+
+                  <!-- Reset / Verify Sequence Control Bar -->
+                  <div class="seq-picking-actions-row">
+                    <button class="action-btn-clean seq-btn-reset" onclick="resetUserSequenceSelection()">
+                      ✕ Reset Sequence
+                    </button>
+                    <button class="action-btn-clean seq-btn-verify" id="btn-seq-verify" onclick="verifyCandidateSequence()" disabled>
+                      ✓ Verify Sequence
+                    </button>
+                  </div>
+                </div>
+
+                <!-- Step 2: Comparison Reveal Stage (Candidate Answer vs Correct Sequence) -->
+                <div class="sequence-reveal-view" id="sequence-reveal-view" style="display: none;">
+                  <div class="seq-reveal-instruction-bar">
+                    ⌨ Press SPACE to reveal correct sequences one by one
+                  </div>
+
+                  <div class="seq-comparison-grid">
+                    <!-- Column 1: YOUR ANSWER -->
+                    <div class="seq-comparison-col">
+                      <div class="seq-col-header seq-hdr-candidate">YOUR ANSWER</div>
+                      <div class="seq-comparison-items-list" id="seq-candidate-answer-list">
+                        <!-- Populated by app.js -->
+                      </div>
+                    </div>
+
+                    <!-- Column 2: CORRECT SEQUENCE -->
+                    <div class="seq-comparison-col">
+                      <div class="seq-col-header seq-hdr-correct">CORRECT SEQUENCE</div>
+                      <div class="seq-comparison-items-list" id="seq-correct-answer-list">
+                        <!-- Populated by app.js and revealed step by step -->
+                      </div>
+                    </div>
+                  </div>
+
+                  <!-- Host Sequence Scoring Decision Bar -->
+                  <div class="seq-scoring-decision-strip" id="seq-scoring-decision-strip">
+                    <div class="seq-score-prompt">
+                      Did <strong id="seq-target-team-label" style="color: #00f0ff;">Current Team</strong> get the sequence correct?
+                    </div>
+                    <div class="seq-score-buttons">
+                      <button class="btn-eval-decision btn-eval-correct" onclick="evaluateSequenceRoundScore(true)">
+                        ✓ Correct (+10 PTS)
+                      </button>
+                      <button class="btn-eval-decision btn-eval-wrong" onclick="evaluateSequenceRoundScore(false)">
+                        ✕ Wrong (0 PTS)
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Buzzer Round Active Buzzed Team Allocation & Evaluation Strip -->
+              <div class="buzzer-round-action-card" id="buzzer-round-action-card" style="display: none;">
+                <!-- Step 1: Who buzzed in first? -->
+                <div class="buzzer-claim-strip" id="buzzer-claim-strip">
+                  <div class="buzzer-claim-label">
+                    <span class="buzzer-flashing-icon">🔔</span>
+                    <span id="buzzer-claim-text">SELECT TEAM THAT BUZZED FASTEST:</span>
+                  </div>
+                  <div class="buzzer-team-selector-row" id="buzzer-team-selector-row">
+                    <!-- Populated dynamically with the 3 teams in current group -->
+                  </div>
+                </div>
+
+                <!-- Step 2: Host Evaluates Buzzed Team Answer (+10 if Correct, -5 if Wrong with pass to remaining 2 teams) -->
+                <div class="buzzer-eval-strip" id="buzzer-eval-strip" style="display: none;">
+                  <div class="buzzer-eval-prompt-info">
+                    <span class="buzzer-eval-stage-tag" id="buzzer-eval-stage-tag">FIRST BUZZER ATTEMPT</span>
+                    <span class="buzzer-eval-team-prompt">Did <strong id="buzzer-eval-team-name" style="color: #00f0ff;">Team</strong> answer correctly?</span>
+                  </div>
+                  <div class="buzzer-eval-btns">
+                    <button class="btn-eval-decision btn-eval-correct" id="btn-buzzer-correct" onclick="evaluateBuzzerRoundAnswer(true)">
+                      ✓ Correct (+10 PTS)
+                    </button>
+                    <button class="btn-eval-decision btn-eval-wrong" id="btn-buzzer-wrong" onclick="evaluateBuzzerRoundAnswer(false)">
+                      ✕ Wrong (-5 PTS Penalty)
+                    </button>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Media Round Direct Answer Reveal & Verification Card (No options format) -->
+              <div class="media-answer-eval-card" id="media-answer-eval-card" style="display: none;">
+                <div class="media-answer-hidden-prompt" id="media-answer-hidden-prompt">
+                  <span class="media-ans-badge">OFFICIAL ANSWER</span>
+                  <div class="media-ans-state-text" id="media-ans-state-text">Answer Hidden • Click Reveal Answer to show the official answer</div>
+                </div>
+                <div class="media-answer-revealed-box" id="media-answer-revealed-box" style="display: none;">
+                  <span class="media-ans-badge" style="color: #10b981; border-color: rgba(16, 185, 129, 0.4); background: rgba(16, 185, 129, 0.1);">CORRECT OFFICIAL ANSWER</span>
+                  <div class="media-revealed-answer-text" id="media-revealed-answer-text">
+                    <!-- Revealed answer text appears here -->
+                  </div>
+                </div>
+
+                <!-- Host Verification Decision Buttons: Mark Correct (+10) or Wrong -->
+                <div class="media-eval-decision-strip" id="media-eval-decision-strip" style="display: none;">
+                  <div class="media-eval-prompt-label">
+                    Did <strong id="media-eval-target-team-name" style="color: #ffc400;">Selected Team</strong> give this correct answer?
+                  </div>
+                  <div class="media-eval-btns">
+                    <button class="btn-eval-decision btn-eval-correct" onclick="evaluateMediaRoundAnswer(true)" title="Award +10 points to the allocated team">
+                      ✓ Correct Answer (+10 PTS)
+                    </button>
+                    <button class="btn-eval-decision btn-eval-wrong" onclick="evaluateMediaRoundAnswer(false)" title="Mark wrong (0 points) and proceed">
+                      ✕ Wrong Answer (0 PTS)
+                    </button>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Dedicated Big-Screen Rapid Fire Stadium View (No questions on screen, Giant Timer & On-Stage Teams with manual point scoring) -->
+              <div class="rapid-fire-stage-card" id="rapid-fire-stage-card" style="display: none;">
+                <!-- Top Announcement Strip -->
+                <div class="rf-stage-header">
+                  <div class="rf-header-left">
+                    <span class="rf-pulsing-fire">⚡</span>
+                    <div>
+                      <div class="rf-title-main" id="rf-stage-title">RAPID FIRE ROUND • LIVE ARENA</div>
+                      <div class="rf-sub-main">The anchor asks verbal questions rapidly for 60 seconds. Award points below as teams score!</div>
+                    </div>
+                  </div>
+                  <div class="rf-mode-badge" id="rf-active-group-badge">GROUP 1 ON STAGE</div>
+                </div>
+
+                <!-- Giant Central High-Visibility Broadcast Timer -->
+                <div class="rf-center-timer-stage">
+                  <div class="rf-giant-clock-wrap">
+                    <svg class="rf-giant-clock-svg" viewBox="0 0 240 240">
+                      <circle class="rf-clock-bg-track" cx="120" cy="120" r="104"></circle>
+                      <circle class="rf-clock-progress-ring" id="rf-clock-ring" cx="120" cy="120" r="104"></circle>
+                    </svg>
+                    <div class="rf-giant-time-display">
+                      <span class="rf-time-big-digits" id="rf-live-timer-number">60s</span>
+                      <span class="rf-time-label">RAPID CLOCK</span>
+                    </div>
+                  </div>
+                  
+                  <div class="rf-timer-controls-row">
+                    <button class="rf-ctrl-btn rf-btn-play" id="rf-btn-toggle" onclick="toggleTimerState()">
+                      ▶ Start 60s Timer
+                    </button>
+                    <button class="rf-ctrl-btn rf-btn-reset" onclick="resetRapidFireTimer(60)">
+                      ↺ Reset 60s
+                    </button>
+                    <button class="rf-ctrl-btn rf-btn-preset" onclick="resetRapidFireTimer(90)">
+                      ⏱ 90s
+                    </button>
+                    <button class="rf-ctrl-btn rf-btn-preset" onclick="resetRapidFireTimer(30)">
+                      ⏱ 30s
+                    </button>
+                  </div>
+                </div>
+
+                <!-- 3 On-Stage Teams Showcase with Rapid Point Adders (+200, +100, +10, etc.) -->
+                <div class="rf-teams-arena-grid" id="rf-teams-arena-grid">
+                  <!-- Populated dynamically by app.js with podium cards & direct score modifiers -->
+                </div>
+              </div>
+
+              <!-- Dedicated Big-Screen Visual Rapid Fire Stage View (Pure High-Speed Image Slideshow, No Answers on Screen, Next/Prev, Manual Scoring) -->
+              <div class="visual-rapid-stage-card" id="visual-rapid-stage-card" style="display: none;">
+                <!-- Top Announcement Strip -->
+                <div class="rf-stage-header">
+                  <div class="rf-header-left">
+                    <span class="vrf-pulsing-eye">👁️</span>
+                    <div>
+                      <div class="rf-title-main" id="vrf-stage-title">VISUAL RAPID FIRE • IMAGE STAGE</div>
+                      <div class="rf-sub-main">Observe projected images rapidly. Students give answers verbally. Advance images below and award points manually at the end!</div>
+                    </div>
+                  </div>
+                  <div style="display: flex; gap: 0.6rem; align-items: center;">
+                    <div style="display: flex; align-items: center; gap: 0.5rem; background: rgba(0, 0, 0, 0.75); border: 1.5px solid #10b981; padding: 0.25rem 0.85rem; border-radius: 4px; box-shadow: 0 0 15px rgba(16, 185, 129, 0.35);">
+                      <span style="font-size: 0.72rem; font-weight: 900; letter-spacing: 0.08em; color: #34d399;">RAPID TIMER:</span>
+                      <span id="vrf-live-timer-number" style="font-family: 'JetBrains Mono', monospace; font-size: 1.35rem; font-weight: 900; color: #fff; min-width: 50px; text-align: right;">60s</span>
+                    </div>
+                    <span class="vrf-counter-pill" id="vrf-image-counter">Image 1 of 10</span>
+                    <div class="rf-mode-badge" id="vrf-active-group-badge">ON STAGE</div>
+                  </div>
+                </div>
+
+                <!-- Main Visual Image Showcase Area -->
+                <div class="vrf-image-arena-center">
+                  <div class="vrf-image-frame" id="vrf-image-frame">
+                    <img id="vrf-active-image" src="logo.png" alt="Rapid Visual Clue">
+                    <div class="vrf-image-glow-ring"></div>
+                    <div class="vrf-watermark-tag" id="vrf-watermark-tag">RAPID VISUAL CLUE</div>
+                  </div>
+
+                  <!-- Quick Image Navigators -->
+                  <div class="vrf-image-controls-strip">
+                    <button class="action-btn-clean vrf-btn-nav" onclick="prevVisualRapidImage()" title="Previous Image (Left Arrow)">
+                      ❮ Previous Image
+                    </button>
+                    <button class="action-btn-clean btn-reveal-gold vrf-btn-nav vrf-btn-next" onclick="nextVisualRapidImage()" title="Next Image (Right Arrow / Spacebar)">
+                      Next Image ❯
+                    </button>
+                    <button class="action-btn-clean" onclick="resetVisualRapidFireImages()" title="Restart Image Stream from #1">
+                      ↺ First Image
+                    </button>
+                  </div>
+                </div>
+
+                <!-- On-Stage Teams Showcase with Rapid Point Adders (+10, +20, +50, +100, Custom) -->
+                <div class="rf-teams-arena-grid" id="vrf-teams-arena-grid">
+                  <!-- Populated dynamically by app.js with podium cards & direct score modifiers -->
+                </div>
+              </div>
+
+            </div>
+
+            <!-- 3 TEAMS ON STAGE PODS: Live active 3 teams competing on the big screen (Placed at bottom) -->
+            <div class="stage-teams-competing-strip" id="stage-teams-competing-strip">
+              <!-- Dynamically populated with 3 podium pods for Team 1, Team 2, Team 3 -->
             </div>
 
           </div>
@@ -237,69 +581,56 @@
             <div class="dock-brand-tag">GK Quiz 2026</div>
           </div>
 
-          <!-- Prominent Countdown Timer Unit -->
+          <!-- Prominent Countdown Timer Unit with Analog Clock Ring -->
           <div class="dock-timer-card">
             <div class="dock-section-label">ROUND TIMER</div>
-            <div class="circular-countdown-box" id="timer-box-display">
-              <span class="timer-numeric-font" id="live-timer-number">30s</span>
+            
+            <!-- Analog Clock Radial Dial + Digital Display -->
+            <div class="clock-timer-container" id="timer-box-display">
+              <svg class="clock-timer-svg" viewBox="0 0 140 140">
+                <circle class="clock-track" cx="70" cy="70" r="58"></circle>
+                <circle class="clock-progress" id="clock-timer-progress-ring" cx="70" cy="70" r="58"></circle>
+                <!-- Clock hand pointer -->
+                <line class="clock-hand" id="clock-timer-hand" x1="70" y1="70" x2="70" y2="24"></line>
+                <circle class="clock-center-pin" cx="70" cy="70" r="4"></circle>
+              </svg>
+              <div class="clock-center-digits">
+                <span class="timer-numeric-font" id="live-timer-number">10s</span>
+                <span class="timer-sub-text">REMAINING</span>
+              </div>
             </div>
+
             <div class="dock-timer-buttons">
               <button class="action-btn-clean btn-dock-action" id="btn-toggle-timer" onclick="toggleTimerState()">▶ Start Timer</button>
               <button class="action-btn-clean btn-dock-action" onclick="resetTimer()">↺ Reset</button>
-              <button class="btn-micro-edit btn-dock-full" onclick="openTimerEditModal()" title="Set Custom Timer Duration">
-                ⚙ Set Duration
-              </button>
+              <button class="action-btn-clean btn-dock-action" onclick="openTimerEditModal()" title="Quickly adjust question timer" style="border-color: rgba(0, 240, 255, 0.4); color: var(--cyan);">⏱ Adjust</button>
             </div>
           </div>
 
-          <!-- Main Host Question Controls & Group Switcher -->
+          <!-- Main Host Question Controls (Focused ONLY on this Round) -->
           <div class="dock-action-cluster">
-            <div class="dock-section-label">ACTIVE 3-TEAM GROUP</div>
-            <div style="margin-bottom: 0.5rem; display: flex; gap: 0.4rem;">
-              <select id="stage-group-selector" class="stage-group-select" onchange="onStageGroupChanged(this.value)" style="flex: 1;">
-                <!-- Dynamically populated with all formed Groups -->
-              </select>
-              <button class="action-btn-clean btn-dock-action" onclick="advanceToNextGroup()" style="padding: 0.35rem 0.6rem; font-size: 0.72rem; white-space: nowrap;" title="Move to Next Group">Next ❯</button>
-            </div>
-
-            <div class="dock-section-label">STAGE CONTROLS</div>
-            <button class="action-btn-clean btn-check-pick btn-dock-primary" id="btn-check-pick" onclick="checkSelectedOptionOnly()" title="Check if selected option is right or wrong without revealing the correct answer (Useful for buzzer rounds to pass to next team)">
+            <div class="dock-section-label">ROUND CONTROLS</div>
+            <button class="action-btn-clean btn-check-pick btn-dock-primary" id="btn-check-pick" onclick="checkSelectedOptionOnly()" title="Check if selected option is right or wrong">
               ⚡ Check Pick (Pass/Buzz)
             </button>
             <button class="action-btn-clean btn-reveal-gold btn-dock-primary" id="btn-reveal-answer-main" onclick="triggerAnswerReveal()" title="Reveal the actual correct answer">
               ✓ Reveal Answer
             </button>
-            <button class="action-btn-clean btn-next-cyan btn-dock-primary" onclick="nextStageQuestion()">
+            <button class="action-btn-clean btn-dock-primary" id="btn-show-standings-modal" onclick="renderTriadGroupStandingsCard()" title="View on-stage group standings & points popup" style="background: rgba(0, 240, 255, 0.12); border-color: rgba(0, 240, 255, 0.4); color: var(--cyan);">
+              📊 Group Scores Pop-Up
+            </button>
+            <button class="action-btn-clean btn-next-cyan btn-dock-primary" onclick="nextStageQuestion()" title="Advance to the next question for the active school">
               Next Question →
             </button>
-            <button class="action-btn-clean btn-reveal-gold" onclick="advanceToNextRoundOnStage()" style="width: 100%; margin-top: 0.35rem; font-size: 0.76rem; font-weight: 800; padding: 0.45rem;" title="Move active group to the next competition round">
-              Next Round (R1→R2→R3→R4) ❯
-            </button>
-
-            <!-- Quick Score Increment for the 3 Active Teams on Stage -->
-            <div class="dock-section-label" style="margin-top: 0.6rem;">AWARD POINTS TO ON-STAGE TEAM</div>
-            <div class="dock-team-award-list" id="dock-team-award-buttons">
-              <!-- Dynamically populated with +10 / -5 quick buttons for the 3 teams in active group -->
-            </div>
           </div>
 
-          <!-- Navigation Shortcuts -->
-          <div class="dock-nav-cluster">
-            <div class="dock-section-label">NAVIGATION & SOUND</div>
-            <button class="action-btn-clean btn-dock-action" id="dock-sfx-toggle-btn" onclick="toggleQuizSoundFX()" title="Toggle Sound Effects & Tension Theme">
+          <!-- Quick Audio / Screen Utility -->
+          <div class="dock-nav-cluster" style="margin-top: auto;">
+            <button class="action-btn-clean btn-dock-action" id="dock-sfx-toggle-btn" onclick="toggleQuizSoundFX()" title="Toggle Sound Effects">
               🔊 Arena Sound: ON
             </button>
             <button class="action-btn-clean btn-dock-action" id="dock-fs-toggle-btn" onclick="toggleStageFullscreen()" title="Toggle Fullscreen Arena">
-              ⛶ Fullscreen Arena
-            </button>
-            <button class="action-btn-clean btn-dock-action" onclick="switchMainScreen('screen-leaderboard')">
-              Leaderboard →
-            </button>
-            <button class="action-btn-clean btn-dock-action" onclick="openRoundsHubForActivePhase()">
-              ← Select Rounds
-            </button>
-            <button class="action-btn-clean btn-exit-stage btn-dock-action" onclick="switchMainScreen('screen-phases')">
-              ✕ Exit Stage
+              ⛶ Fullscreen
             </button>
           </div>
 
@@ -323,6 +654,9 @@
           </div>
 
           <div style="display: flex; gap: 0.8rem; align-items: center;">
+            <button class="action-btn-clean" onclick="openTieBreakerModal()" style="border-color: rgba(239, 68, 68, 0.45); color: #fca5a5; background: rgba(239, 68, 68, 0.08);" title="Launch Tie Breaker Buzzer Round for tied schools">
+              ⚡ Play Tie Breaker
+            </button>
             <button class="action-btn-clean" onclick="switchMainScreen('screen-analytics')">
               View Master Diagram →
             </button>
@@ -404,9 +738,15 @@
             <h2 class="panel-heading-text">Admin Management Portal</h2>
             <p class="panel-sub-text">Authorized Admin: <strong style="color: var(--cyan);" id="admin-user-display">argaikwad24@gmail.com</strong></p>
           </div>
-          <div style="display: flex; gap: 0.8rem; align-items: center;">
+          <div style="display: flex; gap: 0.8rem; align-items: center; flex-wrap: wrap;">
+            <button class="action-btn-clean" onclick="openAdminRoundTimersModal()" style="border-color: rgba(0, 240, 255, 0.45); color: #00f0ff; background: rgba(0, 240, 255, 0.08); font-weight: 800;" title="Configure default timer seconds for every round across all 3 phases">
+              ⏱ Configure Round Timers
+            </button>
             <button class="action-btn-clean" onclick="openBulkPdfModal()" style="border-color: rgba(255, 196, 0, 0.4); color: #ffc400;" title="Upload PDF to extract and import questions">
               📄 Bulk Add PDF
+            </button>
+            <button class="action-btn-clean" onclick="openBulkExcelModal()" style="border-color: rgba(16, 185, 129, 0.45); color: #34d399;" title="Upload Excel (.xlsx, .xls, .csv) spreadsheet with Questions, Options and Answers">
+              📊 Bulk Add Excel
             </button>
             <button class="action-btn-clean" onclick="shuffleCurrentQuestions()" title="Shuffle & Randomize Questions for Live Broadcast">
               🔀 Randomize Stage Pool
@@ -430,9 +770,25 @@
 
           <!-- Right: Questions Grid List -->
           <div class="admin-questions-inventory">
-            <div class="admin-inv-topbar">
-              <span id="admin-category-count-label">Showing 0 Questions</span>
-              <span style="font-size: 0.8rem; color: #94a3b8;">* Random question selection enabled during live arena rounds</span>
+            <div class="admin-inv-topbar" style="display: flex; flex-direction: column; gap: 0.6rem; padding-bottom: 0.9rem;">
+              <div style="display: flex; justify-content: space-between; align-items: center; width: 100%;">
+                <span id="admin-category-count-label">Showing 0 Questions</span>
+                <span style="font-size: 0.8rem; color: #94a3b8;">* Random question selection enabled during live arena rounds</span>
+              </div>
+              <div style="display: flex; align-items: center; justify-content: space-between; gap: 0.8rem; flex-wrap: wrap; width: 100%; border-top: 1px solid rgba(255,255,255,0.06); padding-top: 0.6rem;">
+                <div style="display: flex; align-items: center; gap: 0.4rem;">
+                  <span style="font-size: 0.76rem; font-weight: 800; color: #cbd5e1; text-transform: uppercase; letter-spacing: 0.05em;">Filter by Phase:</span>
+                  <div class="admin-phase-filter-tabs" id="admin-phase-filter-tabs">
+                    <button class="admin-phase-pill-btn active" data-phase="all" onclick="setAdminPhaseFilter('all')">🌟 All Phases</button>
+                    <button class="admin-phase-pill-btn" data-phase="1" onclick="setAdminPhaseFilter('1')">Phase 1</button>
+                    <button class="admin-phase-pill-btn" data-phase="2" onclick="setAdminPhaseFilter('2')">Phase 2</button>
+                    <button class="admin-phase-pill-btn" data-phase="3" onclick="setAdminPhaseFilter('3')">Phase 3</button>
+                  </div>
+                </div>
+                <div style="font-size: 0.74rem; color: #64748b;">
+                  💡 Buzzer & Media rounds exist in multiple phases
+                </div>
+              </div>
             </div>
             <div class="admin-cards-scroll-grid" id="admin-questions-list-container">
               <!-- Rendered by app.js -->
@@ -486,16 +842,26 @@
       <h3 style="font-size: 1.5rem; font-weight: 800; color: #fff; margin-bottom: 0.3rem;" id="question-modal-title">Create Arena Question</h3>
       <p style="color: #94a3b8; font-size: 0.85rem; margin-bottom: 1.2rem;">Add question text, answer options, and media clues for quiz contestants.</p>
 
-      <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; margin-bottom: 1rem;">
+      <div style="display: grid; grid-template-columns: 1.2fr 1fr 1fr; gap: 0.9rem; margin-bottom: 1rem;">
         <div>
           <label style="font-size: 0.8rem; font-weight: 700; color: #cbd5e1; display: block; margin-bottom: 0.3rem;">Target Round Category</label>
           <select id="modal-q-round-select" class="modal-input-text" onchange="toggleMediaFieldsVisibility()">
             <option value="MCQ">MCQ Round (Pure Text)</option>
             <option value="Media Round">Media Round (Image / Audio / Video)</option>
             <option value="Buzzer">Buzzer Round (Fast)</option>
+            <option value="Tie Breaker">⚡ Tie Breaker (Buzzer Round)</option>
             <option value="Rapid Fire">Rapid Fire Round</option>
             <option value="Sequence">Sequence Chronology</option>
             <option value="Visual Rapid Fire">Visual Rapid Fire Finals</option>
+          </select>
+        </div>
+        <div>
+          <label style="font-size: 0.8rem; font-weight: 700; color: #cbd5e1; display: block; margin-bottom: 0.3rem;">Tournament Phase</label>
+          <select id="modal-q-phase-select" class="modal-input-text">
+            <option value="all">🌟 All Phases (Shared Pool)</option>
+            <option value="1">Phase 1: League Round</option>
+            <option value="2">Phase 2: Semi Final</option>
+            <option value="3">Phase 3: Grand Final</option>
           </select>
         </div>
         <div>
@@ -505,8 +871,11 @@
       </div>
 
       <div style="margin-bottom: 1rem;">
-        <label style="font-size: 0.8rem; font-weight: 700; color: #cbd5e1; display: block; margin-bottom: 0.3rem;">Question Text</label>
-        <textarea id="modal-q-text-input" class="modal-input-text" rows="3" placeholder="Enter the official question text here..."></textarea>
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.3rem;">
+          <label style="font-size: 0.8rem; font-weight: 700; color: #cbd5e1;">Question Text (سوال کا متن - Urdu & English)</label>
+          <span style="font-size: 0.72rem; color: #34d399; font-weight: 700;">✍️ Jameel Noori Nastaleeq Enabled</span>
+        </div>
+        <textarea id="modal-q-text-input" class="modal-input-text urdu-support-input" rows="3" dir="auto" placeholder="سوال کا متن درج کریں یا Enter question text..."></textarea>
       </div>
 
       <!-- Media Round specific options -->
@@ -558,29 +927,32 @@
 
       <!-- 4 Options Grid -->
       <div style="margin-bottom: 1rem;">
-        <label style="font-size: 0.8rem; font-weight: 700; color: #cbd5e1; display: block; margin-bottom: 0.4rem;">4 Answer Options & Correct Selection</label>
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.4rem;">
+          <label style="font-size: 0.8rem; font-weight: 700; color: #cbd5e1;">4 Answer Options (چاروں اختیارات) & Winning Key</label>
+          <span style="font-size: 0.72rem; color: #cbd5e1;">Urdu / English</span>
+        </div>
         <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 0.7rem;">
           <div class="admin-opt-row">
             <span class="admin-opt-key">A</span>
-            <input type="text" id="modal-opt-a" class="modal-input-text" placeholder="Option A text">
+            <input type="text" id="modal-opt-a" class="modal-input-text urdu-support-input" dir="auto" placeholder="اختیار A / Option A">
           </div>
           <div class="admin-opt-row">
             <span class="admin-opt-key">B</span>
-            <input type="text" id="modal-opt-b" class="modal-input-text" placeholder="Option B text">
+            <input type="text" id="modal-opt-b" class="modal-input-text urdu-support-input" dir="auto" placeholder="اختیار B / Option B">
           </div>
           <div class="admin-opt-row">
             <span class="admin-opt-key">C</span>
-            <input type="text" id="modal-opt-c" class="modal-input-text" placeholder="Option C text">
+            <input type="text" id="modal-opt-c" class="modal-input-text urdu-support-input" dir="auto" placeholder="اختیار C / Option C">
           </div>
           <div class="admin-opt-row">
             <span class="admin-opt-key">D</span>
-            <input type="text" id="modal-opt-d" class="modal-input-text" placeholder="Option D text">
+            <input type="text" id="modal-opt-d" class="modal-input-text urdu-support-input" dir="auto" placeholder="اختیار D / Option D">
           </div>
         </div>
       </div>
 
-      <!-- Correct Option Radio Group -->
-      <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 1.4rem; padding-top: 0.4rem; border-top: 1px solid rgba(255,255,255,0.08);">
+      <!-- Standard MCQ Correct Option Radio Group -->
+      <div id="modal-standard-correct-zone" style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 1.4rem; padding-top: 0.4rem; border-top: 1px solid rgba(255,255,255,0.08);">
         <span style="font-size: 0.85rem; font-weight: 800; color: var(--emerald);">Correct Winning Answer:</span>
         <div style="display: flex; gap: 1.2rem;">
           <label style="display: flex; align-items: center; gap: 0.3rem; color: #fff; font-weight: 800; cursor: pointer;">
@@ -595,6 +967,55 @@
           <label style="display: flex; align-items: center; gap: 0.3rem; color: #fff; font-weight: 800; cursor: pointer;">
             <input type="radio" name="correct-opt-radio" value="D"> D
           </label>
+        </div>
+      </div>
+
+      <!-- Sequence Round Specific Correct Chronological Order Configurator -->
+      <div id="modal-sequence-correct-zone" style="display: none; background: rgba(168, 85, 247, 0.08); border: 1.5px solid rgba(168, 85, 247, 0.4); border-radius: 12px; padding: 1rem 1.2rem; margin-bottom: 1.4rem;">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.6rem;">
+          <span style="font-size: 0.88rem; font-weight: 800; color: #c084fc;">🔢 Official Correct Sequence Order:</span>
+          <span style="font-size: 0.75rem; color: #94a3b8;">Specify the chronological order of options (e.g. 3, 4, 2, 1)</span>
+        </div>
+        <div style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 0.8rem; margin-bottom: 0.6rem;">
+          <div>
+            <label style="font-size: 0.75rem; color: #cbd5e1; display: block; margin-bottom: 0.25rem;">1st in Order</label>
+            <select id="modal-seq-pos-1" class="modal-input-text" style="font-weight: 800; text-align: center;">
+              <option value="1">Option 1</option>
+              <option value="2">Option 2</option>
+              <option value="3" selected>Option 3</option>
+              <option value="4">Option 4</option>
+            </select>
+          </div>
+          <div>
+            <label style="font-size: 0.75rem; color: #cbd5e1; display: block; margin-bottom: 0.25rem;">2nd in Order</label>
+            <select id="modal-seq-pos-2" class="modal-input-text" style="font-weight: 800; text-align: center;">
+              <option value="1">Option 1</option>
+              <option value="2">Option 2</option>
+              <option value="3">Option 3</option>
+              <option value="4" selected>Option 4</option>
+            </select>
+          </div>
+          <div>
+            <label style="font-size: 0.75rem; color: #cbd5e1; display: block; margin-bottom: 0.25rem;">3rd in Order</label>
+            <select id="modal-seq-pos-3" class="modal-input-text" style="font-weight: 800; text-align: center;">
+              <option value="1">Option 1</option>
+              <option value="2" selected>Option 2</option>
+              <option value="3">Option 3</option>
+              <option value="4">Option 4</option>
+            </select>
+          </div>
+          <div>
+            <label style="font-size: 0.75rem; color: #cbd5e1; display: block; margin-bottom: 0.25rem;">4th in Order</label>
+            <select id="modal-seq-pos-4" class="modal-input-text" style="font-weight: 800; text-align: center;">
+              <option value="1" selected>Option 1</option>
+              <option value="2">Option 2</option>
+              <option value="3">Option 3</option>
+              <option value="4">Option 4</option>
+            </select>
+          </div>
+        </div>
+        <div style="font-size: 0.78rem; color: #e9d5ff; background: rgba(0,0,0,0.3); padding: 0.4rem 0.8rem; border-radius: 6px;">
+          💡 When candidates take the stage, they will pick options in their chosen sequence. The stage will automatically verify whether their sequence matches this official sequence.
         </div>
       </div>
 
@@ -701,6 +1122,92 @@
   </div>
 
   <!-- MODAL: PHASE UNLOCKED CELEBRATION -->
+  <!-- MODAL: TIE BREAKER SELECTION & LAUNCHER -->
+  <div class="modal-backdrop-layer" id="tie-breaker-modal">
+    <div class="modal-content-card" style="max-width: 660px; text-align: left; border: 2px solid rgba(239, 68, 68, 0.4); box-shadow: 0 0 50px rgba(239, 68, 68, 0.25);">
+      <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.6rem;">
+        <div style="display: flex; align-items: center; gap: 0.6rem;">
+          <span style="font-size: 1.8rem; filter: drop-shadow(0 0 10px rgba(239, 68, 68, 0.8));">⚡</span>
+          <div>
+            <h3 style="font-size: 1.55rem; font-weight: 900; color: #fff; margin: 0;">SUDDEN-DEATH TIE BREAKER</h3>
+            <span style="font-size: 0.76rem; color: #fca5a5; font-weight: 700; text-transform: uppercase; letter-spacing: 0.05em;">Exclusive Buzzer Showdown</span>
+          </div>
+        </div>
+        <span class="active-ph-badge" id="tiebreaker-active-phase-badge" style="background: rgba(239, 68, 68, 0.2); color: #fca5a5; border-color: rgba(239, 68, 68, 0.4);">PHASE 1</span>
+      </div>
+
+      <p style="color: #cbd5e1; font-size: 0.88rem; line-height: 1.5; margin-bottom: 1.2rem;">
+        When 2 or more institutions finish with identical scores, launch this sudden-death <strong>Buzzer Round</strong>. The team that buzzes in fastest and answers correctly breaks the tie!
+      </p>
+
+      <!-- Auto Detected Tied Groups Alert -->
+      <div id="tiebreaker-detected-zone" style="background: rgba(239, 68, 68, 0.08); border: 1.5px dashed rgba(239, 68, 68, 0.35); border-radius: 12px; padding: 0.9rem 1.1rem; margin-bottom: 1.2rem;">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.5rem;">
+          <span style="font-size: 0.8rem; font-weight: 900; color: #fca5a5; text-transform: uppercase; letter-spacing: 0.06em;">🔍 Tied Teams In Active Phase:</span>
+          <span id="tiebreaker-tied-groups-count" style="font-family: 'JetBrains Mono', monospace; font-size: 0.78rem; color: #cbd5e1;">Scanning scores...</span>
+        </div>
+        <div id="tiebreaker-detected-list" style="display: flex; flex-direction: column; gap: 0.5rem; max-height: 140px; overflow-y: auto;">
+          <!-- Populated dynamically with detected tied scores -->
+        </div>
+      </div>
+
+      <!-- Manual Team Selector Checklist -->
+      <div style="margin-bottom: 1.3rem;">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.5rem;">
+          <label style="font-size: 0.82rem; font-weight: 800; color: #fff;">Select Teams for this Tie Breaker (2 to 4 Teams):</label>
+          <span style="font-size: 0.74rem; color: #94a3b8;">Checked: <strong id="tiebreaker-selected-count" style="color: var(--cyan);">0</strong> Teams</span>
+        </div>
+        <div id="tiebreaker-teams-checklist" style="display: grid; grid-template-columns: 1fr 1fr; gap: 0.5rem; max-height: 180px; overflow-y: auto; padding: 0.6rem; background: rgba(0, 0, 0, 0.3); border: 1px solid rgba(255, 255, 255, 0.08); border-radius: 10px;">
+          <!-- Populated by app.js -->
+        </div>
+      </div>
+
+      <div style="display: flex; justify-content: space-between; align-items: center;">
+        <button class="action-btn-clean" onclick="closeTieBreakerModal()">Cancel</button>
+        <button class="btn-promote-gold" id="btn-start-tiebreaker-now" onclick="launchTieBreakerBuzzerRound()" style="background: linear-gradient(135deg, #ef4444, #dc2626); border-color: #f87171; color: #fff; font-weight: 900; box-shadow: 0 0 25px rgba(239, 68, 68, 0.45);">
+          ⚡ Launch Tie Breaker Buzzer Round →
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- MODAL: LIVE GROUP STANDINGS & SCORES POPUP (Never clutters or overlaps the main stage) -->
+  <div class="modal-backdrop-layer" id="triad-standings-modal">
+    <div class="modal-content-card" style="max-width: 720px; text-align: left; border: 1.5px solid rgba(0, 240, 255, 0.45); box-shadow: 0 0 50px rgba(0, 240, 255, 0.25);">
+      <div class="tsc-header" style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.8rem; padding-bottom: 0.6rem; border-bottom: 1px solid rgba(255,255,255,0.1);">
+        <div class="tsc-title-col">
+          <span class="tsc-badge" style="color: var(--cyan); font-weight: 800; font-size: 0.72rem; letter-spacing: 0.12em; text-transform: uppercase;">LIVE GROUP STANDINGS</span>
+          <h3 class="tsc-title" id="tsc-group-title" style="margin: 0; font-size: 1.25rem; font-weight: 900; color: #fff;">Group 1 • Live Stage Rankings & Points</h3>
+        </div>
+        <button class="action-btn-clean" onclick="closeTriadStandingsModal()" style="padding: 0.3rem 0.7rem; font-size: 0.82rem;">✕ Close</button>
+      </div>
+
+      <div class="tsc-table-wrap" style="width: 100%; overflow-x: auto; margin-bottom: 1rem;">
+        <table class="tsc-table" style="width: 100%; border-collapse: collapse; text-align: left;">
+          <thead>
+            <tr>
+              <th style="width: 70px;">Rank</th>
+              <th>School Name</th>
+              <th style="width: 100px; text-align: center;">Round Qs</th>
+              <th style="width: 110px; text-align: right;">Total Score</th>
+              <th style="width: 120px; text-align: center;">Quick Points</th>
+            </tr>
+          </thead>
+          <tbody id="tsc-table-body">
+            <!-- Rendered dynamically -->
+          </tbody>
+        </table>
+      </div>
+
+      <div style="display: flex; justify-content: space-between; align-items: center; border-top: 1px solid rgba(255,255,255,0.08); padding-top: 0.8rem;">
+        <button class="action-btn-clean" onclick="closeTriadStandingsModal()">Close Standings</button>
+        <button class="action-btn-clean tsc-continue-btn" onclick="closeTriadStandingsModal(); nextStageQuestion();" style="background: linear-gradient(135deg, #00f0ff 0%, #0070f3 100%); color: #020617; font-weight: 900; padding: 0.55rem 1.4rem; border-radius: 10px; box-shadow: 0 0 18px rgba(0, 240, 255, 0.4);">
+          Next Question ❯
+        </button>
+      </div>
+    </div>
+  </div>
+
   <div class="modal-backdrop-layer" id="phase-advance-modal">
     <div class="modal-content-card" style="max-width: 580px;">
       <div style="display: flex; justify-content: center; margin-bottom: 0.5rem; color: #ffc400;">
@@ -734,16 +1241,26 @@
         Upload a question sheet PDF or exam paper. The system parses all questions, multiple-choice options (A, B, C, D), and answer keys, then bulk imports them into your selected round repository.
       </p>
 
-      <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; margin-bottom: 1rem;">
+      <div style="display: grid; grid-template-columns: 1.2fr 1fr 1fr; gap: 0.9rem; margin-bottom: 1rem;">
         <div>
           <label style="font-size: 0.8rem; font-weight: 700; color: #cbd5e1; display: block; margin-bottom: 0.3rem;">Import Into Round</label>
-          <select id="bulk-target-round-select" class="modal-input-text">
+          <select id="bulk-target-round-select" class="modal-input-text" onchange="updateBulkPdfPhaseOptions()">
             <option value="MCQ">MCQ Round</option>
             <option value="Buzzer">Buzzer Round</option>
+            <option value="Tie Breaker">⚡ Tie Breaker (Buzzer Round)</option>
             <option value="Rapid Fire">Rapid Fire Round</option>
             <option value="Media Round">Media Round</option>
             <option value="Sequence">Sequence Chronology</option>
             <option value="Visual Rapid Fire">Visual Rapid Fire Finals</option>
+          </select>
+        </div>
+        <div>
+          <label style="font-size: 0.8rem; font-weight: 700; color: #cbd5e1; display: block; margin-bottom: 0.3rem;">Target Phase</label>
+          <select id="bulk-target-phase-select" class="modal-input-text">
+            <option value="all">🌟 All Phases (Shared Pool)</option>
+            <option value="1">Phase 1: League Round</option>
+            <option value="2">Phase 2: Semi Final</option>
+            <option value="3">Phase 3: Grand Final</option>
           </select>
         </div>
         <div>
@@ -778,6 +1295,80 @@
         <button class="action-btn-clean btn-reveal-gold" id="btn-confirm-pdf-import" onclick="confirmBulkPdfImport()" disabled style="opacity: 0.4; cursor: not-allowed;">
           Confirm & Import Questions
         </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- MODAL: BULK ADD QUESTIONS FROM EXCEL -->
+  <div class="modal-backdrop-layer" id="bulk-excel-modal">
+    <div class="modal-content-card" style="max-width: 740px; text-align: left;">
+      <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.4rem;">
+        <h3 style="font-size: 1.6rem; font-weight: 800; color: #fff;">📊 Bulk Add Questions via Excel</h3>
+        <span style="font-size: 0.76rem; background: rgba(16, 185, 129, 0.15); color: #34d399; padding: 0.2rem 0.6rem; border-radius: 8px; font-weight: 800;">XLSX / XLS / CSV</span>
+      </div>
+      <p style="color: #94a3b8; font-size: 0.88rem; margin-bottom: 1.2rem; line-height: 1.4;">
+        Upload an Excel spreadsheet with columns: <strong>Question</strong> (سوال), <strong>Option A</strong>, <strong>Option B</strong>, <strong>Option C</strong>, <strong>Option D</strong>, and <strong>Answer</strong> (جواب - e.g., A, B, C, D or exact text). Supports Urdu & English text.
+      </p>
+
+      <div style="display: grid; grid-template-columns: 1.2fr 1fr 1fr; gap: 0.9rem; margin-bottom: 1rem;">
+        <div>
+          <label style="font-size: 0.8rem; font-weight: 700; color: #cbd5e1; display: block; margin-bottom: 0.3rem;">Import Into Round</label>
+          <select id="bulk-excel-target-round-select" class="modal-input-text" onchange="updateBulkExcelPhaseOptions()">
+            <option value="MCQ">MCQ Round</option>
+            <option value="Buzzer">Buzzer Round</option>
+            <option value="Tie Breaker">⚡ Tie Breaker (Buzzer Round)</option>
+            <option value="Rapid Fire">Rapid Fire Round</option>
+            <option value="Media Round">Media Round</option>
+            <option value="Sequence">Sequence Chronology</option>
+            <option value="Visual Rapid Fire">Visual Rapid Fire Finals</option>
+          </select>
+        </div>
+        <div>
+          <label style="font-size: 0.8rem; font-weight: 700; color: #cbd5e1; display: block; margin-bottom: 0.3rem;">Target Phase</label>
+          <select id="bulk-excel-target-phase-select" class="modal-input-text">
+            <option value="all">🌟 All Phases (Shared Pool)</option>
+            <option value="1">Phase 1: League Round</option>
+            <option value="2">Phase 2: Semi Final</option>
+            <option value="3">Phase 3: Grand Final</option>
+          </select>
+        </div>
+        <div>
+          <label style="font-size: 0.8rem; font-weight: 700; color: #cbd5e1; display: block; margin-bottom: 0.3rem;">Default Timer per Question</label>
+          <input type="number" id="bulk-excel-timer-input" value="30" min="5" max="180" class="modal-input-text">
+        </div>
+      </div>
+
+      <!-- Drag & Drop Excel Dropzone -->
+      <div class="pdf-upload-dropzone" id="excel-dropzone" onclick="document.getElementById('excel-file-picker').click()" style="border-color: rgba(16, 185, 129, 0.4);">
+        <input type="file" id="excel-file-picker" accept=".xlsx, .xls, .csv" style="display: none;" onchange="handleBulkExcelFileSelected(event)">
+        <div style="font-size: 2.2rem; margin-bottom: 0.4rem;">📊</div>
+        <div style="font-size: 0.95rem; font-weight: 800; color: #fff; margin-bottom: 0.2rem;" id="excel-drop-label">Click or Drag & Drop Excel File (.xlsx, .xls, .csv) Here</div>
+        <p style="font-size: 0.78rem; color: #94a3b8;">Headers supported: Question | Option A | Option B | Option C | Option D | Answer / Correct</p>
+      </div>
+
+      <!-- Excel Status Box -->
+      <div id="excel-parsing-status-box" style="display: none; margin: 1rem 0; padding: 0.8rem 1rem; border-radius: 12px; background: rgba(16, 185, 129, 0.1); border: 1px solid rgba(16, 185, 129, 0.35);">
+        <div style="display: flex; justify-content: space-between; align-items: center;">
+          <span id="excel-parse-status-text" style="font-weight: 800; font-size: 0.88rem; color: #34d399;">Reading Excel sheet...</span>
+          <span id="excel-detected-count" style="font-family: 'JetBrains Mono', monospace; font-size: 0.85rem; font-weight: 900; color: #fff;">0 Detected</span>
+        </div>
+      </div>
+
+      <!-- Scrollable Preview of parsed questions before confirming -->
+      <div id="excel-parsed-preview-list" style="display: none; max-height: 200px; overflow-y: auto; margin-bottom: 1.2rem; gap: 0.6rem; flex-direction: column;">
+        <!-- Filled dynamically -->
+      </div>
+
+      <div style="display: flex; justify-content: space-between; align-items: center;">
+        <button type="button" class="action-btn-clean" onclick="downloadSampleExcelTemplate()" style="font-size: 0.8rem; border-color: rgba(255,255,255,0.2);">
+          📥 Download Excel Template
+        </button>
+        <div style="display: flex; gap: 1rem;">
+          <button class="action-btn-clean" onclick="closeBulkExcelModal()">Cancel</button>
+          <button class="action-btn-clean btn-reveal-gold" id="btn-confirm-excel-import" onclick="confirmBulkExcelImport()" disabled style="opacity: 0.4; cursor: not-allowed;">
+            Confirm & Import Questions
+          </button>
+        </div>
       </div>
     </div>
   </div>
@@ -832,6 +1423,162 @@
     </div>
   </div>
 
+
+
+  <!-- 8. RESET ALL / FRESH START CONFIRMATION MODAL -->
+  <div class="modal-backdrop-layer" id="reset-tournament-modal">
+    <div class="modal-content-card" style="max-width: 500px; text-align: center; border-color: rgba(239, 68, 68, 0.45); box-shadow: 0 0 50px rgba(239, 68, 68, 0.3);">
+      <div style="font-size: 3rem; margin-bottom: 0.6rem; animation: turnBadgePulse 1.5s infinite;">⚠️</div>
+      <h3 style="font-size: 1.4rem; font-weight: 900; color: #fff; margin-bottom: 0.5rem;">
+        Reset Tournament to Phase 1?
+      </h3>
+      <p style="color: #94a3b8; font-size: 0.9rem; line-height: 1.5; margin-bottom: 1.4rem;">
+        This will clear all recorded team scores, unlock Phase 1: League Round, reset all question pools, and bring the tournament back to the very beginning.
+      </p>
+
+      <div style="background: rgba(239, 68, 68, 0.1); border: 1px dashed rgba(239, 68, 68, 0.35); border-radius: 10px; padding: 0.8rem; margin-bottom: 1.4rem; text-align: left; font-size: 0.82rem; color: #fca5a5;">
+        <div>✓ All 34 teams reset to 0 points</div>
+        <div>✓ Phase 1 unlocked & active; Phase 2 & 3 locked</div>
+        <div>✓ Questions history cleared for fresh presentation</div>
+        <div>✓ Groups reset to Group 1</div>
+      </div>
+
+      <div style="display: flex; justify-content: center; gap: 1rem;">
+        <button class="action-btn-clean" onclick="closeResetTournamentModal()" style="padding: 0.75rem 1.6rem;">
+          Cancel
+        </button>
+        <button class="action-btn-clean btn-eval-wrong" onclick="confirmResetTournamentToPhase1()" style="background: #ef4444; color: #fff; padding: 0.75rem 1.8rem; font-weight: 900; box-shadow: 0 0 20px rgba(239, 68, 68, 0.6);">
+          ↺ Yes, Reset Everything
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- 9. ADMIN ROUND TIMERS CONFIGURATION MODAL -->
+  <div class="modal-backdrop-layer" id="admin-round-timers-modal">
+    <div class="modal-content-card" style="max-width: 860px; max-height: 90vh; overflow-y: auto; text-align: left; padding: 2rem 2.4rem;">
+      <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 1.2rem; border-bottom: 1px solid rgba(255,255,255,0.1); padding-bottom: 1rem;">
+        <div>
+          <div style="display: flex; align-items: center; gap: 0.6rem; margin-bottom: 0.3rem;">
+            <span style="background: rgba(0, 240, 255, 0.15); color: var(--cyan); border: 1px solid rgba(0, 240, 255, 0.4); border-radius: 9999px; padding: 0.2rem 0.7rem; font-size: 0.72rem; font-weight: 800; letter-spacing: 0.05em;">ADMIN PRIVILEGE</span>
+            <span style="font-size: 0.8rem; color: #94a3b8;">Full Phase & Round Countdown Authority</span>
+          </div>
+          <h3 style="font-size: 1.55rem; font-weight: 900; color: #fff; margin: 0;">Configure Round Timers</h3>
+          <p style="color: #94a3b8; font-size: 0.85rem; margin-top: 0.3rem;">
+            Customize countdown durations for each round in Phase 1, Phase 2, and Phase 3, or set a global default timer.
+          </p>
+        </div>
+        <button class="action-btn-clean" onclick="closeAdminRoundTimersModal()" style="padding: 0.4rem 0.8rem; font-size: 1.1rem; border-radius: 8px;">✕</button>
+      </div>
+
+      <!-- Quick Global Preset Bar -->
+      <div style="background: rgba(0, 240, 255, 0.06); border: 1px dashed rgba(0, 240, 255, 0.3); border-radius: 12px; padding: 0.9rem 1.2rem; margin-bottom: 1.5rem; display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 0.8rem;">
+        <div style="display: flex; align-items: center; gap: 0.6rem;">
+          <span style="font-size: 1.2rem;">⚡</span>
+          <div>
+            <div style="font-size: 0.86rem; font-weight: 800; color: #fff;">Quick Set All Rounds to Default Timer:</div>
+            <div style="font-size: 0.76rem; color: #94a3b8;">One-click uniform timer for rapid tournament configuration</div>
+          </div>
+        </div>
+        <div style="display: flex; gap: 0.4rem; align-items: center;">
+          <button class="action-btn-clean" onclick="applyQuickTimerPreset(10)" style="padding: 0.35rem 0.75rem; font-size: 0.8rem; border-color: rgba(255,255,255,0.2);">10s</button>
+          <button class="action-btn-clean" onclick="applyQuickTimerPreset(15)" style="padding: 0.35rem 0.75rem; font-size: 0.8rem; border-color: rgba(255,255,255,0.2);">15s</button>
+          <button class="action-btn-clean" onclick="applyQuickTimerPreset(20)" style="padding: 0.35rem 0.75rem; font-size: 0.8rem; border-color: rgba(255,255,255,0.2);">20s</button>
+          <button class="action-btn-clean" onclick="applyQuickTimerPreset(30)" style="padding: 0.35rem 0.75rem; font-size: 0.8rem; border-color: rgba(255,255,255,0.2);">30s</button>
+          <button class="action-btn-clean" onclick="applyQuickTimerPreset(45)" style="padding: 0.35rem 0.75rem; font-size: 0.8rem; border-color: rgba(255,255,255,0.2);">45s</button>
+          <button class="action-btn-clean" onclick="applyQuickTimerPreset(60)" style="padding: 0.35rem 0.75rem; font-size: 0.8rem; border-color: rgba(255,255,255,0.2);">60s</button>
+        </div>
+      </div>
+
+      <!-- Phase-by-Phase Round Timers Form -->
+      <div id="admin-timer-phases-container" style="display: flex; flex-direction: column; gap: 1.2rem; margin-bottom: 1.8rem;">
+        <!-- Populated dynamically by openAdminRoundTimersModal() -->
+      </div>
+
+      <!-- Action Footer -->
+      <div style="display: flex; justify-content: space-between; align-items: center; border-top: 1px solid rgba(255,255,255,0.1); padding-top: 1.2rem;">
+        <button class="action-btn-clean" onclick="resetTimersToFactoryDefaults()" style="border-color: rgba(239, 68, 68, 0.4); color: #f87171;" title="Restore original factory recommended round timer defaults">
+          ↺ Reset Recommended Defaults
+        </button>
+        <div style="display: flex; gap: 0.8rem;">
+          <button class="action-btn-clean" onclick="closeAdminRoundTimersModal()" style="padding: 0.7rem 1.4rem;">
+            Cancel
+          </button>
+          <button class="action-btn-clean btn-reveal-gold" onclick="saveAdminRoundTimers()" style="padding: 0.7rem 2rem; font-weight: 800; font-size: 0.95rem;">
+            💾 Save Timer Settings
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 10. VISUAL RAPID FIRE TIME-UP / MANUAL POINT AWARD MODAL (Completely Rectangular) -->
+  <div class="modal-backdrop-layer" id="vrf-timeup-score-modal" style="display: none; z-index: 99999;">
+    <div class="modal-content-card" style="border-radius: 0px; max-width: 600px; text-align: center; border: 2px solid #10b981; box-shadow: 0 0 50px rgba(16, 185, 129, 0.45); background: radial-gradient(circle at 50% 20%, rgba(16, 185, 129, 0.2) 0%, rgba(5, 12, 24, 0.98) 85%); padding: 2rem 2.2rem;">
+      <div style="font-size: 2.8rem; margin-bottom: 0.5rem; filter: drop-shadow(0 0 15px rgba(16, 185, 129, 0.8));">⏱️</div>
+      <div style="font-size: 0.82rem; font-weight: 900; letter-spacing: 0.12em; color: #34d399; text-transform: uppercase;">ROUND FINISHED • TIME'S UP</div>
+      <h2 style="font-size: 1.6rem; font-weight: 900; color: #fff; margin: 0.3rem 0 0.8rem 0;">Award Visual Rapid Fire Points</h2>
+      <p style="color: #cbd5e1; font-size: 0.9rem; margin-bottom: 1.5rem;">
+        Add final marks scored during the image rapid fire round for the active school on stage.
+      </p>
+
+      <!-- Active Team Info Card -->
+      <div id="vrf-timeup-team-card" style="background: rgba(0, 0, 0, 0.6); border: 1.5px solid rgba(16, 185, 129, 0.4); border-radius: 0px; padding: 1.2rem; margin-bottom: 1.5rem; text-align: center;">
+        <!-- Filled dynamically -->
+      </div>
+
+      <!-- Point Input -->
+      <div style="display: flex; gap: 0.6rem; justify-content: center; align-items: stretch; margin-bottom: 1.2rem;">
+        <input type="number" id="vrf-modal-points-input" placeholder="Enter points (e.g. 50, 80, 150)" style="flex: 1; border-radius: 0px; border: 1.5px solid #10b981; background: rgba(0, 0, 0, 0.8); color: #fff; font-family: 'JetBrains Mono', monospace; font-size: 1.2rem; font-weight: 800; padding: 0.75rem 1rem; text-align: center;" onkeydown="if(event.key==='Enter') submitVisualRapidPointsFromModal()">
+        <button class="action-btn-clean" style="border-radius: 0px; background: linear-gradient(135deg, #10b981, #059669); font-weight: 900; font-size: 1.05rem; padding: 0.75rem 1.8rem; border: 1px solid #34d399; cursor: pointer; color: #fff;" onclick="submitVisualRapidPointsFromModal()">
+          + Add Points
+        </button>
+      </div>
+
+      <div style="display: flex; justify-content: space-between; align-items: center; border-top: 1px solid rgba(255,255,255,0.1); padding-top: 1rem; margin-top: 0.5rem;">
+        <button class="action-btn-clean" style="border-radius: 0px; font-size: 0.85rem; color: #94a3b8;" onclick="closeVisualRapidTimeUpModal()">
+          ✕ Skip / Close
+        </button>
+        <span style="font-size: 0.75rem; color: #64748b;">Scores update tournament leaderboard automatically</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- 11. VERBAL RAPID FIRE TIME-UP / MANUAL POINT AWARD MODAL (Completely Rectangular) -->
+  <div class="modal-backdrop-layer" id="rf-timeup-score-modal" style="display: none; z-index: 99999;">
+    <div class="modal-content-card" style="border-radius: 0px; max-width: 600px; text-align: center; border: 2px solid #f97316; box-shadow: 0 0 50px rgba(249, 115, 22, 0.45); background: radial-gradient(circle at 50% 20%, rgba(249, 115, 22, 0.2) 0%, rgba(15, 12, 10, 0.98) 85%); padding: 2rem 2.2rem;">
+      <div style="font-size: 2.8rem; margin-bottom: 0.5rem; filter: drop-shadow(0 0 15px rgba(249, 115, 22, 0.8));">⚡</div>
+      <div style="font-size: 0.82rem; font-weight: 900; letter-spacing: 0.12em; color: #fb923c; text-transform: uppercase;">ROUND FINISHED • TIME'S UP</div>
+      <h2 style="font-size: 1.6rem; font-weight: 900; color: #fff; margin: 0.3rem 0 0.8rem 0;">Award Rapid Fire Points</h2>
+      <p style="color: #cbd5e1; font-size: 0.9rem; margin-bottom: 1.5rem;">
+        Add final marks scored during the verbal rapid fire round for the active school on stage.
+      </p>
+
+      <!-- Active Team Info Card -->
+      <div id="rf-timeup-team-card" style="background: rgba(0, 0, 0, 0.6); border: 1.5px solid rgba(249, 115, 22, 0.4); border-radius: 0px; padding: 1.2rem; margin-bottom: 1.5rem; text-align: center;">
+        <!-- Filled dynamically -->
+      </div>
+
+      <!-- Point Input -->
+      <div style="display: flex; gap: 0.6rem; justify-content: center; align-items: stretch; margin-bottom: 1.2rem;">
+        <input type="number" id="rf-modal-points-input" placeholder="Enter points (e.g. 50, 100, 150)" style="flex: 1; border-radius: 0px; border: 1.5px solid #f97316; background: rgba(0, 0, 0, 0.8); color: #fff; font-family: 'JetBrains Mono', monospace; font-size: 1.2rem; font-weight: 800; padding: 0.75rem 1rem; text-align: center;" onkeydown="if(event.key==='Enter') submitRapidFirePointsFromModal()">
+        <button class="action-btn-clean" style="border-radius: 0px; background: linear-gradient(135deg, #f97316, #ea580c); font-weight: 900; font-size: 1.05rem; padding: 0.75rem 1.8rem; border: 1px solid #fb923c; cursor: pointer; color: #fff;" onclick="submitRapidFirePointsFromModal()">
+          + Add Points
+        </button>
+      </div>
+
+      <div style="display: flex; justify-content: space-between; align-items: center; border-top: 1px solid rgba(255,255,255,0.1); padding-top: 1rem; margin-top: 0.5rem;">
+        <button class="action-btn-clean" style="border-radius: 0px; font-size: 0.85rem; color: #94a3b8;" onclick="closeRapidFireTimeUpModal()">
+          ✕ Skip / Close
+        </button>
+        <span style="font-size: 0.75rem; color: #64748b;">Scores update tournament leaderboard automatically</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- Dedicated Clock Audio Track (Looping ticking clock) -->
+  <audio id="clock-ticking-audio" src="public/Audio/clock.m4a" preload="auto"></audio>
+
   <!-- PDF.js CDN for client-side instant PDF parsing -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
   <script>
@@ -839,6 +1586,8 @@
       window.pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
     }
   </script>
-  <script src="app.js"></script>
+  <!-- SheetJS (xlsx) for client-side Excel spreadsheet importing -->
+  <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
+  <script src="app.js?v=20261024_0005"></script>
 </body>
 </html>

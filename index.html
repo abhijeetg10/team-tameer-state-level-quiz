@@ -43,10 +43,19 @@
         <span>Official Grand Stage Arena</span>
       </div>
 
-      <button class="fs-toggle-btn" onclick="toggleFullscreen()" title="Fullscreen Stage Mode">
-        ⛶ Fullscreen Stage
-      </button>
+      <div style="display: flex; gap: 0.6rem; align-items: center;">
+        <button class="fs-toggle-btn" id="btn-landing-bgm" onclick="toggleLandingAudio()" title="Toggle Background Music" style="display: flex; align-items: center; gap: 0.35rem;">
+          <span id="landing-bgm-icon">🔊</span>
+          <span id="landing-bgm-text">Music: ON</span>
+        </button>
+        <button class="fs-toggle-btn" onclick="toggleFullscreen()" title="Fullscreen Stage Mode">
+          ⛶ Fullscreen Stage
+        </button>
+      </div>
     </header>
+
+    <!-- Background Audio Element -->
+    <audio id="landing-bg-audio" src="public/Audio/Landing Page.mp3" loop preload="auto"></audio>
 
     <!-- 2. Main Center Grand Poster Section -->
     <main class="stage-center-content">
