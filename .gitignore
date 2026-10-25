@@ -1,0 +1,6 @@
+# Local Firebase credentials (keeps secrets off public GitHub)
+firebase-local-config.js
+
+# Node / OS artifacts
+.DS_Store
+Thumbs.db

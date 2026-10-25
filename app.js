@@ -1399,6 +1399,7 @@ document.addEventListener('DOMContentLoaded', () => {
   renderSchoolsDirectory();
   updateSelectedCount();
   setupStageHotkeys();
+  initCloudDatabaseOnLaunch();
 
   // Initialize screen history with initial screen
   screenHistoryStack.push('screen-phases');
@@ -6054,14 +6055,47 @@ function updateMediaInputAcceptance() {
   }
 }
 
-// Handle file uploaded directly from user device via FileReader (DataURL Base64)
-function handleAdminMediaFileUpload(e) {
+// Handle file uploaded directly from user device via Firebase Storage or FileReader fallback
+async function handleAdminMediaFileUpload(e) {
   const file = e.target.files?.[0];
   if (!file) return;
 
-  const reader = new FileReader();
   const type = document.getElementById('modal-q-media-type')?.value || 'image';
+  const progressWrap = document.getElementById('modal-q-upload-progress-wrap');
+  const progressBar = document.getElementById('modal-q-upload-progress-bar');
+  const pctLabel = document.getElementById('modal-q-upload-pct-label');
+  const statusLabel = document.getElementById('modal-q-upload-status-label');
 
+  // If Firebase Storage is ready, upload directly to cloud storage
+  if (window.quizFirebaseService && window.quizFirebaseService.isReady()) {
+    try {
+      if (progressWrap) {
+        progressWrap.style.display = 'block';
+        if (progressBar) progressBar.style.width = '0%';
+        if (pctLabel) pctLabel.innerText = '0%';
+        if (statusLabel) statusLabel.innerText = '☁️ Uploading asset to Firebase Storage...';
+      }
+
+      const downloadUrl = await window.quizFirebaseService.uploadMedia(file, (pct) => {
+        if (progressBar) progressBar.style.width = `${pct}%`;
+        if (pctLabel) pctLabel.innerText = `${pct}%`;
+      });
+
+      const srcInput = document.getElementById('modal-q-media-src');
+      if (srcInput) {
+        srcInput.value = downloadUrl;
+      }
+      if (statusLabel) statusLabel.innerText = '✓ Uploaded to Firebase Storage!';
+      renderMediaPreviewInModal(type, downloadUrl, file.name);
+      return;
+    } catch (err) {
+      console.warn("Firebase upload failed, falling back to local FileReader:", err);
+      if (statusLabel) statusLabel.innerText = '⚠️ Cloud upload failed, using local fallback';
+    }
+  }
+
+  // Fallback to local DataURL (Base64)
+  const reader = new FileReader();
   reader.onload = function(event) {
     const dataUrl = event.target.result;
     const srcInput = document.getElementById('modal-q-media-src');
@@ -6070,7 +6104,6 @@ function handleAdminMediaFileUpload(e) {
     }
     renderMediaPreviewInModal(type, dataUrl, file.name);
   };
-
   reader.readAsDataURL(file);
 }
 
@@ -6096,8 +6129,8 @@ function renderMediaPreviewInModal(type, src, fileName) {
   }
 }
 
-// Save New Question from Modal
-function saveAdminQuestion() {
+// Save New Question from Modal (Synced with Cloud Firestore)
+async function saveAdminQuestion() {
   const round = document.getElementById('modal-q-round-select').value;
   const phase = document.getElementById('modal-q-phase-select')?.value || 'all';
   const time = parseInt(document.getElementById('modal-q-timer-input').value, 10) || 30;
@@ -6150,21 +6183,31 @@ function saveAdminQuestion() {
     newQuestion.correct = pos1; // Fallback
   }
 
-  // Add media properties if in Media Round
-  if (round === "Media Round" || round === "Visual Rapid Fire") {
-    const mediaType = document.getElementById('modal-q-media-type').value;
-    const mediaSrc = (document.getElementById('modal-q-media-src').value || "").trim();
-    const mediaLabel = (document.getElementById('modal-q-media-label').value || "").trim();
-    const audioTitle = (document.getElementById('modal-q-audio-title').value || "").trim();
+  // Add media properties for image/audio/video clues across rounds
+  const mediaType = document.getElementById('modal-q-media-type')?.value || 'image';
+  const mediaSrc = (document.getElementById('modal-q-media-src')?.value || "").trim();
+  const mediaLabel = (document.getElementById('modal-q-media-label')?.value || "").trim();
+  const audioTitle = (document.getElementById('modal-q-audio-title')?.value || "").trim();
 
+  if (mediaSrc) {
     newQuestion.type = mediaType;
-    if (mediaSrc) newQuestion.mediaSrc = mediaSrc;
+    newQuestion.mediaSrc = mediaSrc;
     if (mediaLabel) newQuestion.mediaLabel = mediaLabel;
     if (audioTitle) newQuestion.audioTitle = audioTitle;
   }
 
   if (!quizRoundsQuestions[round]) {
     quizRoundsQuestions[round] = [];
+  }
+
+  // Save to Firebase Firestore if connected
+  if (window.quizFirebaseService && window.quizFirebaseService.isReady()) {
+    try {
+      const docId = await window.quizFirebaseService.saveQuestion(round, newQuestion);
+      if (docId) newQuestion.id = docId;
+    } catch (fbErr) {
+      console.warn("Could not save to Firebase, saved locally:", fbErr);
+    }
   }
 
   // Add to question repository
@@ -6175,14 +6218,29 @@ function saveAdminQuestion() {
   currentAdminCategoryFilter = round;
   renderAdminPortalView();
   const phaseNotice = phase === 'all' ? 'All Phases' : `Phase ${phase}`;
-  alert(`✓ Question successfully added to the ${round} repository for ${phaseNotice}!`);
+  alert(`✓ Question successfully saved to ${round} repository for ${phaseNotice}!`);
 }
 
-// Delete Question
-function deleteAdminQuestion(index) {
+// Delete Question (Synced with Cloud Firestore)
+async function deleteAdminQuestion(index) {
   if (confirm("Are you sure you want to delete this question from the repository?")) {
-    quizRoundsQuestions[currentAdminCategoryFilter].splice(index, 1);
+    const list = quizRoundsQuestions[currentAdminCategoryFilter];
+    const qToDelete = list ? list[index] : null;
+
+    if (list) {
+      list.splice(index, 1);
+    }
     saveTournamentStateToStorage();
+
+    // Delete from Firebase Firestore if connected
+    if (qToDelete && window.quizFirebaseService && window.quizFirebaseService.isReady()) {
+      try {
+        await window.quizFirebaseService.deleteQuestion(currentAdminCategoryFilter, qToDelete.text, qToDelete.id);
+      } catch (fbErr) {
+        console.warn("Could not delete from Firebase:", fbErr);
+      }
+    }
+
     renderAdminPortalView();
   }
 }
@@ -7027,3 +7085,342 @@ function applyShuffledTriadGroups() {
     openRoundsHubForPhase(currentPhaseIdx + 1);
   }
 }
+
+/* ==============================================================================
+   13. FIREBASE CLOUD DATABASE & MEDIA STORAGE INTEGRATION
+   ============================================================================== */
+
+/**
+ * Open Cloud DB & Media Storage Manager Modal
+ */
+function openCloudDbModal() {
+  const modal = document.getElementById('firebase-db-modal');
+  if (modal) modal.style.display = 'flex';
+
+  // Populate config fields from active config manager
+  const cfg = (window.FirebaseConfigManager && typeof window.FirebaseConfigManager.get === 'function')
+    ? window.FirebaseConfigManager.get()
+    : {};
+
+  if (document.getElementById('fb-input-apiKey')) document.getElementById('fb-input-apiKey').value = cfg.apiKey || '';
+  if (document.getElementById('fb-input-projectId')) document.getElementById('fb-input-projectId').value = cfg.projectId || '';
+  if (document.getElementById('fb-input-authDomain')) document.getElementById('fb-input-authDomain').value = cfg.authDomain || '';
+  if (document.getElementById('fb-input-storageBucket')) document.getElementById('fb-input-storageBucket').value = cfg.storageBucket || '';
+  if (document.getElementById('fb-input-messagingSenderId')) document.getElementById('fb-input-messagingSenderId').value = cfg.messagingSenderId || '';
+  if (document.getElementById('fb-input-appId')) document.getElementById('fb-input-appId').value = cfg.appId || '';
+
+  updateCloudDbUIStatus();
+}
+
+/**
+ * Close Cloud DB Modal
+ */
+function closeCloudDbModal() {
+  const modal = document.getElementById('firebase-db-modal');
+  if (modal) modal.style.display = 'none';
+}
+
+/**
+ * Toggle Firebase Setup Instructions
+ */
+function toggleFirebaseConfigHelp() {
+  const guide = document.getElementById('cloud-setup-guide');
+  if (guide) {
+    guide.style.display = (guide.style.display === 'none' || guide.style.display === '') ? 'block' : 'none';
+  }
+}
+
+/**
+ * Update UI indicators based on Firebase connectivity
+ */
+async function updateCloudDbUIStatus() {
+  const badgePill = document.getElementById('cloud-db-pill-badge');
+  const modalBadge = document.getElementById('cloud-modal-badge');
+  const statStatus = document.getElementById('cloud-stat-status');
+  const statLocalCount = document.getElementById('cloud-stat-local-count');
+  const statCloudCount = document.getElementById('cloud-stat-cloud-count');
+  const qModalBadge = document.getElementById('modal-q-cloud-storage-badge');
+
+  // Count local questions across all rounds
+  let localTotal = 0;
+  Object.keys(quizRoundsQuestions).forEach(r => {
+    localTotal += (quizRoundsQuestions[r] || []).length;
+  });
+  if (statLocalCount) statLocalCount.innerText = localTotal;
+
+  if (window.quizFirebaseService && window.quizFirebaseService.isReady()) {
+    if (badgePill) {
+      badgePill.className = 'cloud-pill-active';
+      badgePill.innerText = 'Connected 🟢';
+    }
+    if (modalBadge) {
+      modalBadge.className = 'cloud-pill-active';
+      modalBadge.innerText = 'ONLINE • CLOUD READY';
+    }
+    if (statStatus) {
+      statStatus.innerText = 'Connected 🟢';
+      statStatus.style.color = '#34d399';
+    }
+    if (qModalBadge) {
+      qModalBadge.innerHTML = '☁️ Firebase Storage: Active 🟢';
+      qModalBadge.style.color = '#34d399';
+    }
+
+    try {
+      const snap = await window.quizFirebaseService.db.collection(window.quizFirebaseService.COLLECTION_QUESTIONS).get();
+      if (statCloudCount) statCloudCount.innerText = snap.size;
+    } catch (e) {
+      if (statCloudCount) statCloudCount.innerText = 'Err';
+    }
+  } else {
+    if (badgePill) {
+      badgePill.className = 'cloud-pill-idle';
+      badgePill.innerText = 'Local 🟡';
+    }
+    if (modalBadge) {
+      modalBadge.className = 'cloud-pill-idle';
+      modalBadge.innerText = 'LOCAL STORAGE MODE';
+    }
+    if (statStatus) {
+      statStatus.innerText = 'Offline / Local';
+      statStatus.style.color = '#fbbf24';
+    }
+    if (statCloudCount) statCloudCount.innerText = '--';
+    if (qModalBadge) {
+      qModalBadge.innerHTML = '☁️ Local Fallback Mode 🟡';
+      qModalBadge.style.color = '#fbbf24';
+    }
+  }
+}
+
+/**
+ * Test Firebase Connection with modal input credentials
+ */
+async function testFirebaseCredentialsConnection() {
+  const cfg = {
+    apiKey: document.getElementById('fb-input-apiKey')?.value.trim() || '',
+    projectId: document.getElementById('fb-input-projectId')?.value.trim() || '',
+    authDomain: document.getElementById('fb-input-authDomain')?.value.trim() || '',
+    storageBucket: document.getElementById('fb-input-storageBucket')?.value.trim() || '',
+    messagingSenderId: document.getElementById('fb-input-messagingSenderId')?.value.trim() || '',
+    appId: document.getElementById('fb-input-appId')?.value.trim() || ''
+  };
+
+  if (!cfg.apiKey || !cfg.projectId) {
+    alert("Please enter at least the API Key and Project ID to test connection.");
+    return;
+  }
+
+  if (window.FirebaseConfigManager) {
+    window.FirebaseConfigManager.save(cfg);
+  }
+
+  if (window.quizFirebaseService) {
+    const ok = await window.quizFirebaseService.init();
+    if (ok) {
+      const res = await window.quizFirebaseService.testConnection();
+      if (res.success) {
+        alert(`✓ Connection Verified! ${res.message}`);
+      } else {
+        alert(`⚠️ Connection check failed: ${res.message}`);
+      }
+    } else {
+      alert(`⚠️ Firebase initialization failed: ${window.quizFirebaseService.lastError || 'Verify credentials'}`);
+    }
+  }
+  updateCloudDbUIStatus();
+}
+
+/**
+ * Save Firebase credentials from modal and initialize connection
+ */
+async function saveFirebaseCredentialsFromModal() {
+  const cfg = {
+    apiKey: document.getElementById('fb-input-apiKey')?.value.trim() || '',
+    projectId: document.getElementById('fb-input-projectId')?.value.trim() || '',
+    authDomain: document.getElementById('fb-input-authDomain')?.value.trim() || '',
+    storageBucket: document.getElementById('fb-input-storageBucket')?.value.trim() || '',
+    messagingSenderId: document.getElementById('fb-input-messagingSenderId')?.value.trim() || '',
+    appId: document.getElementById('fb-input-appId')?.value.trim() || ''
+  };
+
+  if (!cfg.apiKey || !cfg.projectId) {
+    alert("Please fill in both the API Key and Project ID.");
+    return;
+  }
+
+  if (window.FirebaseConfigManager) {
+    window.FirebaseConfigManager.save(cfg);
+  }
+
+  if (window.quizFirebaseService) {
+    const ok = await window.quizFirebaseService.init();
+    if (ok) {
+      alert("🎉 Firebase Connected Successfully! Questions, options, Urdu content, and images will now sync with Cloud Firestore and Storage.");
+      updateCloudDbUIStatus();
+      // Offer auto-sync
+      const shouldSync = confirm("Would you like to fetch and load existing questions from Firebase Firestore now?");
+      if (shouldSync) {
+        syncQuestionsFromCloud();
+      }
+    } else {
+      alert(`Credentials saved, but connection failed: ${window.quizFirebaseService.lastError || 'Please check keys'}`);
+      updateCloudDbUIStatus();
+    }
+  }
+}
+
+/**
+ * Reset Firebase configuration to local defaults
+ */
+function clearFirebaseConfigFromStorage() {
+  if (confirm("Reset Firebase credentials? The app will operate in local browser storage mode.")) {
+    if (window.FirebaseConfigManager) {
+      window.FirebaseConfigManager.reset();
+    }
+    location.reload();
+  }
+}
+
+/**
+ * Synchronize questions from Firestore into local quiz rounds
+ */
+async function syncQuestionsFromCloud(silent = false) {
+  if (!window.quizFirebaseService) return false;
+
+  try {
+    const cloudQuestions = await window.quizFirebaseService.fetchAllQuestions();
+    if (!cloudQuestions || Object.keys(cloudQuestions).length === 0) {
+      if (!silent) {
+        alert("Firestore collection 'quiz_questions' is currently empty.\n\nYou can click 'Upload Local Qs to Cloud' to seed your existing questions into the database!");
+      }
+      return false;
+    }
+
+    // Merge cloud questions into quizRoundsQuestions
+    let totalLoaded = 0;
+    Object.keys(cloudQuestions).forEach(round => {
+      quizRoundsQuestions[round] = cloudQuestions[round];
+      totalLoaded += cloudQuestions[round].length;
+    });
+
+    saveTournamentStateToStorage();
+    if (typeof renderAdminPortalView === 'function') {
+      renderAdminPortalView();
+    }
+    updateCloudDbUIStatus();
+
+    if (!silent) {
+      alert(`✓ Cloud Sync Complete! Successfully loaded ${totalLoaded} questions across ${Object.keys(cloudQuestions).length} rounds from Firestore.`);
+    }
+    return true;
+  } catch (err) {
+    console.error("Cloud sync error:", err);
+    if (!silent) {
+      alert(`⚠️ Could not sync from Firestore: ${err.message}`);
+    }
+    return false;
+  }
+}
+
+/**
+ * Seed all local questions from memory into Firestore
+ */
+async function seedLocalQuestionsToCloud() {
+  if (!window.quizFirebaseService || !window.quizFirebaseService.isReady()) {
+    alert("Please connect to Firebase first by entering your project credentials below.");
+    return;
+  }
+
+  const progressWrap = document.getElementById('cloud-sync-progress-wrap');
+  const progressBar = document.getElementById('cloud-sync-progress-bar');
+  const statusText = document.getElementById('cloud-sync-status-text');
+  const pctText = document.getElementById('cloud-sync-pct-text');
+
+  try {
+    if (progressWrap) progressWrap.style.display = 'block';
+
+    const count = await window.quizFirebaseService.seedAllQuestions(quizRoundsQuestions, (prog) => {
+      const pct = Math.round((prog.current / prog.total) * 100);
+      if (progressBar) progressBar.style.width = `${pct}%`;
+      if (pctText) pctText.innerText = `${pct}%`;
+      if (statusText) statusText.innerText = `Uploading [${prog.round}]: question ${prog.current} of ${prog.total}...`;
+    });
+
+    if (statusText) statusText.innerText = `✓ Successfully uploaded ${count} questions to Firebase Firestore!`;
+    updateCloudDbUIStatus();
+    alert(`🎉 Success! Seeded all ${count} questions into your Firebase Cloud Database!`);
+  } catch (err) {
+    console.error("Cloud seeding error:", err);
+    alert(`⚠️ Seeding failed: ${err.message}`);
+  }
+}
+
+/**
+ * Upload single image or media file directly to Firebase Storage
+ */
+async function uploadDirectMediaToCloud() {
+  const fileInput = document.getElementById('cloud-direct-file-input');
+  const resultDiv = document.getElementById('cloud-direct-upload-result');
+  const file = fileInput?.files?.[0];
+
+  if (!file) {
+    alert("Please select an image or audio file to upload.");
+    return;
+  }
+
+  if (!window.quizFirebaseService || !window.quizFirebaseService.isReady()) {
+    alert("Firebase Storage is not connected. Please verify your Firebase credentials in the form below.");
+    return;
+  }
+
+  try {
+    if (resultDiv) {
+      resultDiv.style.display = 'block';
+      resultDiv.innerHTML = `<span style="color: var(--cyan); font-size: 0.82rem;">⏳ Uploading ${file.name} to Firebase Storage...</span>`;
+    }
+
+    const downloadUrl = await window.quizFirebaseService.uploadMedia(file);
+
+    if (resultDiv) {
+      resultDiv.innerHTML = `
+        <div class="cloud-media-preview-strip">
+          <img src="${downloadUrl}" class="cloud-media-thumb" alt="Preview" onerror="this.style.display='none'">
+          <div style="flex: 1; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">
+            <div style="font-size: 0.76rem; font-weight: 800; color: #34d399;">✓ Uploaded to Storage</div>
+            <input type="text" value="${downloadUrl}" readonly style="width: 100%; font-size: 0.72rem; background: rgba(0,0,0,0.5); border: 1px solid rgba(255,255,255,0.15); color: #fff; padding: 0.25rem 0.4rem; border-radius: 4px; font-family: monospace;" onclick="this.select(); navigator.clipboard.writeText(this.value); alert('Copied image URL to clipboard!');">
+          </div>
+          <button class="action-btn-clean" onclick="navigator.clipboard.writeText('${downloadUrl}'); alert('Copied image URL to clipboard!');" style="font-size: 0.75rem; padding: 0.35rem 0.7rem; border-color: rgba(0, 240, 255, 0.4); color: var(--cyan);">
+            📋 Copy URL
+          </button>
+        </div>
+      `;
+    }
+  } catch (err) {
+    console.error("Direct upload error:", err);
+    if (resultDiv) {
+      resultDiv.innerHTML = `<span style="color: #f87171; font-size: 0.8rem;">❌ Upload failed: ${err.message}</span>`;
+    }
+  }
+}
+
+/**
+ * Initialize Cloud Database on Application Launch
+ */
+async function initCloudDatabaseOnLaunch() {
+  if (!window.quizFirebaseService) return;
+  try {
+    const ok = await window.quizFirebaseService.init();
+    if (ok) {
+      updateCloudDbUIStatus();
+      // Silently sync from cloud if questions exist
+      syncQuestionsFromCloud(true);
+    } else {
+      updateCloudDbUIStatus();
+    }
+  } catch (err) {
+    console.warn("Cloud DB launch check warning:", err);
+    updateCloudDbUIStatus();
+  }
+}
+
